@@ -18,7 +18,7 @@
     <label for="dt">dt</label>
     <input type="range" min="1" max="50" value="5" class="slider" id="dt" onchange="reset()" name="dt"><br>
     <label for="v0x">v0x</label>
-    <input type="range" min="0" max="10" value="1" class="slider" id="v0x" onchange="reset()" name="v0x">
+    <input type="range" min="-10" max="10" value="1" class="slider" id="v0x" onchange="reset()" name="v0x">
     <label for="v0y">v0y</label>
     <input type="range" min="-10" max="10" value="2" class="slider" id="v0y" onchange="reset()" name="v0y"><br>
     <label for="GM">GM</label>
@@ -165,7 +165,8 @@ theta = Math.atan(Math.abs((y - yM) / (x - xM)))
     x += (v0x  + vx) * dt;
     y += (v0y + vy) * dt;
 
-    
+    //xM += 0.0001
+    //yM += 0.0001
 }
 
 const reset = () => {
