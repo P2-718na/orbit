@@ -21,11 +21,11 @@
     <label for="dt">dt</label>
     <input type="range" min="1" max="50" value="5" class="slider" id="dt" onchange="reset()" name="dt"><br>
     <label for="v0x">v0x</label>
-    <input type="range" min="0" max="10" value="2" class="slider" id="v0x" onchange="reset()" name="v0x">
+    <input type="range" min="0" max="10" value="1" class="slider" id="v0x" onchange="reset()" name="v0x">
     <label for="v0y">v0y</label>
-    <input type="range" min="-10" max="10" value="-2" class="slider" id="v0y" onchange="reset()" name="v0y"><br>
+    <input type="range" min="-10" max="10" value="2" class="slider" id="v0y" onchange="reset()" name="v0y"><br>
     <label for="GM">GM</label>
-    <input type="range" min="1" max="32767" value="5000" class="slider" id="GM" onchange="reset()" name="GM">
+    <input type="range" min="1" max="50000" value="10000" class="slider" id="GM" onchange="reset()" name="GM">
   </div>
   <canvas class="dots" id="canvass">Your browser does not support canvas.</canvas>
 
@@ -157,7 +157,7 @@ const reset = () => {
     console.log(dt);
 
     // Starting Position
-    x0 = 250;
+    x0 = 300;
     y0 = 500;
     x = x0;
     y = y0;
@@ -172,8 +172,8 @@ const reset = () => {
 
     GM = +document.getElementById("GM").value;
 
-    xM = 250;
-    yM = 250;
+    xM = 500;
+    yM = 400;
 
     time = +new Date();
   }
