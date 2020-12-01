@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US" encoding="utf8">
 <head>
-  <title></title>
+  <title>Orbit</title>
   <style type="text/css">
-    canvas.dots {
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-#canvass {
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-}
+    #canvass {
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
   </style>
 </head>
 <body>
@@ -32,6 +29,7 @@
  
 </body>
 <script type="text/javascript">
+  let shitf = false;
     function drawLineWithArrows(ctx, x0,y0,x1,y1, strokeStyle = "#000000", lw = 1, aWidth = 5,aLength = 5, arrowStart = false ,arrowEnd = true){
     var dx=x1-x0;
     var dy=y1-y0;
@@ -107,6 +105,18 @@ let theta = 0;
 
 let time = +new Date();
 
+canvas.addEventListener('click', function(e) {
+  //if (!e.shiftKey) {
+    //return;
+  //}
+
+  x0 = e.clientX
+  y0 = e.clientY
+  reset()
+}, false);
+
+
+
 const r = (x, y, x2, y2) => {
   return Math.sqrt(Math.pow((x - x2), 2) + Math.pow((y - y2), 2))
 }
@@ -169,8 +179,6 @@ const reset = () => {
     console.log(dt);
 
     // Starting Position
-    x0 = 300;
-    y0 = 500;
     x = x0;
     y = y0;
 
