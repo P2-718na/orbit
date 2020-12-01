@@ -10,8 +10,8 @@
 }
 
 #canvass {
-  width: 1000;
-  height: 800;
+  width: 100%;
+  height: 100%;
   z-index: -1;
 }
   </style>
@@ -69,8 +69,8 @@
   var context = canvas.getContext("2d")
 
 // Set Canvas dimensions
-canvas.width   = 1000;
-canvas.height  = 800;
+canvas.width   = window.innerWidth;
+canvas.height  = window.innerHeight;
 
 // Get drawing context
 var c3 = canvas.getContext( '2d' );
@@ -122,21 +122,9 @@ function animate3() {
 
     //c3.clearRect( 0, 0 , canvas.width, canvas.height );
 
-    theta = Math.atan(Math.abs((y - yM) / (x - xM)))
-
-    atot = GM / Math.pow(r(x, y, xM, yM), 2);
-    ax =  atot * Math.cos(theta) * (x - xM > 0 ? -1 : 1);
-    ay = atot * Math.sin(theta) * (y - yM > 0 ? -1 : 1);
- 
-    vx += ax * dt;
-    vy += ay * dt;
-
-    //console.log("vx", vx, "vy", vy)
-
-    x += (v0x  + vx) * dt;
-    y += (v0y + vy) * dt;
-
-    
+    for (i = 0; i <= dt; i+= 0.001) {
+      step()
+    }
     c3.beginPath();
     //m
     c3.arc( x, y,  radius, 0, Math.PI * 2, false  );
@@ -151,7 +139,31 @@ function animate3() {
 
 // Animate the Circle
 
+function step() {
+  const dt = 0.001;
+theta = Math.atan(Math.abs((y - yM) / (x - xM)))
+
+    atot = GM / Math.pow(r(x, y, xM, yM), 2);
+    ax =  atot * Math.cos(theta) * (x - xM > 0 ? -1 : 1);
+    ay = atot * Math.sin(theta) * (y - yM > 0 ? -1 : 1);
+ 
+    vx += ax * dt;
+    vy += ay * dt;
+
+    //console.log("vx", vx, "vy", vy)
+
+    x += (v0x  + vx) * dt;
+    y += (v0y + vy) * dt;
+
+    
+}
+
 const reset = () => {
+  console.log("reset")
+  canvas.width   = window.innerWidth;
+  canvas.height  = window.innerHeight;
+
+
     c3.clearRect( 0, 0 , canvas.width, canvas.height );
     dt = document.getElementById("dt").value / 10;
     console.log(dt);
@@ -177,6 +189,9 @@ const reset = () => {
 
     time = +new Date();
   }
+
+  window.onresize = reset
+
   reset();
   animate3();
 </script>
