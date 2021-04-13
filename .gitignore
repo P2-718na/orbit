@@ -1,4 +1,9 @@
-.DS_Store
+*.out
+build
+cmake-build-debug
+cmake-build-*
+CMakeFiles
+doctest
 .idea
+.DS_Store
 *.db
-
