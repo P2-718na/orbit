@@ -16,20 +16,22 @@
 <body>
   <div class="slidecontainer">
     <label for="dt">dt</label>
-    <input type="range" min="1" max="50" value="5" class="slider" id="dt" onchange="reset()" name="dt"><br>
-    <label for="v0x">v0x</label>
-    <input type="range" min="-10" max="10" value="1" class="slider" id="v0x" onchange="reset()" name="v0x">
-    <label for="v0y">v0y</label>
-    <input type="range" min="-10" max="10" value="2" class="slider" id="v0y" onchange="reset()" name="v0y"><br>
-    <label for="GM">GM</label>
-    <input type="range" min="1" max="50000" value="10000" class="slider" id="GM" onchange="reset()" name="GM">
+    <input type="range" min="1" max="50" value="1" class="slider" id="dt" onchange="reset()" name="dt"><br>
+    <label for="w">w</label>
+    <input type="int" min="0" max="100" value="100" class="slider" id="w" onchange="reset()" name="w">
+    <label for="p">p</label>
+    <input type="int" min="-300" max="300" value="10" cass="slider" id="p" onchange="reset()" name="p"><br>
+    <label for="x">x</label>
+    <input type="int" min="-300" max="300" value="200" class="slider" id="x" onchange="reset()" name="x">
   </div>
   <canvas class="dots" id="canvass">Your browser does not support canvas.</canvas>
 
  
 </body>
 <script type="text/javascript">
+  time  = +new Date();
   let shitf = false;
+
     function drawLineWithArrows(ctx, x0,y0,x1,y1, strokeStyle = "#000000", lw = 1, aWidth = 5,aLength = 5, arrowStart = false ,arrowEnd = true){
     var dx=x1-x0;
     var dy=y1-y0;
@@ -62,69 +64,99 @@
     ctx.strokeStyle = old;
     ctx.lineWidth = oldv;
 }
-  // Setup the canvas element.
-  var canvas = document.getElementById("canvass")
-  var context = canvas.getContext("2d")
+ 
 
-// Set Canvas dimensions
-canvas.width   = window.innerWidth;
-canvas.height  = window.innerHeight;
-
-// Get drawing context
-var c3 = canvas.getContext( '2d' );
-
-let pause = false;
-
-let dt = 0.5;
-
-// Radiu
-var radius = 2;
-
-// Starting Position
-var x0 = 250;
-var y0 = 500;
-
-let x = x0;
-let y = y0;
-
-let v0x = 10;
-let v0y = -4;
-
-let vx = v0x;
-let vy = v0y;
-
-let ax = 0;
-let ay = 0;
-
-let GM = 5000.0;
-
-let xM = 250;
-let yM = 250;
-
-let theta = 0;
-
-let time = +new Date();
-
-canvas.addEventListener('click', function(e) {
-  //if (!e.shiftKey) {
-    //return;
-  //}
-
-  x0 = e.clientX
-  y0 = e.clientY
-  reset()
-}, false);
-
-
-
+  let E = 0
 const r = (x, y, x2, y2) => {
   return Math.sqrt(Math.pow((x - x2), 2) + Math.pow((y - y2), 2))
 }
 
 
+let dt = 0.00001;
+const frame_dt = 0.1;
+
+// Setup the canvas element.
+var canvas = document.getElementById("canvass")
+var context = canvas.getContext("2d")
+
+// Get drawing context
+var c3 = canvas.getContext( '2d' );
+
+// Set Canvas dimensions
+canvas.width   = window.innerWidth;
+canvas.height  = window.innerHeight;
+
+
+
+let pause = false;
+
+let x = 100;
+let p = 2;
+let m = 1;
+
+let mx;
+let mp;
+
+let dot_x = 0;
+let dot_p = 0;
+
+let w = 0.5;
+
+
+// Animate the Circle
+function step() {
+  if (Math.abs(x) > 10000 || Math.abs(p) > 10000)
+    pause = true;
+
+
+    // Oscillatore parabolico
+  //dot_x = p/m;
+  //dot_p = -w*w*x * m;
+
+  //if (+new Date() - time > 1000) {
+  //  time = +new Date()
+  //  dot_p += 1000000;
+  //}
+  
+  // iperbolico
+  dot_x = p/m;
+  dot_p = w*w*x * m;
+
+  // controllo
+  //  if (x > 200 ) {
+  //  dot_p = -50
+  //}
+  //if (x < -200 ) {
+  //  dot_p = 50
+  //}
+  
+
+
+  x += dot_x * dt;
+  p += dot_p * dt;
+
+
+  // osc ip
+  mx += -(mp / m) * dt;
+  mp += -(w*w*mx * m) * dt;
+
+// osc par
+  //mx += -(mp / m) * dt;
+  //mp += (w*w*mx * m) * dt;
+
+}
+
 function animate3() {
+    ax = x + 500
+    adot_x = 1;
+
+
+    ap = p + 500;
+    adot_p = 1
+
     requestAnimationFrame( animate3 );
-    drawLineWithArrows(c3, x, y, x + vx*5, y + vy * 5, "#FFFFFF", 4, 5, 6)
+    //drawLineWithArrows(c3, ax - x, 100, ax, 100, "#FFFFFF", 4, 5, 6)
+    c3.clearRect( 0, 50 , canvas.width, 100 );
 
     if (pause) {
       return
@@ -132,77 +164,97 @@ function animate3() {
 
     //c3.clearRect( 0, 0 , canvas.width, canvas.height );
 
-    for (i = 0; i <= dt; i+= 0.001) {
+    mx1 = mx;
+    mp1 = mp;
+
+    c3.beginPath();
+
+    //m
+    c3.arc( ax, ap,  1, 0, Math.PI * 2, false  );
+  
+    //M
+
+      for (i = 0; i <= frame_dt; i+= dt) {
+
       step()
     }
-    c3.beginPath();
-    //m
-    c3.arc( x, y,  radius, 0, Math.PI * 2, false  );
-    //M
-    c3.moveTo(xM, yM)
-    c3.arc( xM, yM,  radius, 0, Math.PI * 2, false  );
+
+
+    // en osc ip
+    E = p*p/2/m - m * w*w * x * x / 2;
+
+    // Energia oscillatore parabolico
+    //E = p*p/2/m + w*w * x * x / 2;
+
+
+
+
+    c3.strokeStyle = "#" + (E < 0 ? - E + 255:E).toString(16).split(".")[0];
+    //console.log("#" + E.toString(16));
+    ax2 = x + 500
+    ap2 = p + 500
+    c3.lineTo(ax2, ap2)
     c3.stroke();
 
-    drawLineWithArrows(c3, x, y, x + vx*5, y + vy * 5)
-    time = +new Date();
-}
 
-// Animate the Circle
 
-function step() {
-  const dt = 0.001;
-theta = Math.atan(Math.abs((y - yM) / (x - xM)))
 
-    atot = GM / Math.pow(r(x, y, xM, yM), 2);
-    ax =  atot * Math.cos(theta) * (x - xM > 0 ? -1 : 1);
-    ay = atot * Math.sin(theta) * (y - yM > 0 ? -1 : 1);
- 
-    vx += ax * dt;
-    vy += ay * dt;
+    c3.beginPath()
+    c3.arc( mx1 + 500, mp1 + 500,  1, 0, Math.PI * 2, false  );
+    c3.lineTo(mx + 500, mp + 500)
+    c3.stroke()
 
-    //console.log("vx", vx, "vy", vy)
 
-    x += (v0x  + vx) * dt;
-    y += (v0y + vy) * dt;
 
-    //xM += 0.0001
-    //yM += 0.0001
+
+    drawLineWithArrows(c3, 500, 100, ax, 100)
+    //time = +new Date();
 }
 
 const reset = () => {
+
   console.log("reset")
   canvas.width   = window.innerWidth;
   canvas.height  = window.innerHeight;
 
 
-    c3.clearRect( 0, 0 , canvas.width, canvas.height );
-    dt = document.getElementById("dt").value / 10;
-    console.log(dt);
+  c3.clearRect( 0, 0 , canvas.width, canvas.height );
+  //dt = document.getElementById("dt").value / 1000;
 
     // Starting Position
-    x = x0;
-    y = y0;
+    x = 100;
+    p = .1;
 
-    v0x = +document.getElementById("v0x").value;
-    v0y = +document.getElementById("v0y").value;
-    vx = v0x;
-    vy = v0y;
+    w = +document.getElementById("w").value / 100;
+    mp = p = +document.getElementById("p").value / 100;
 
-    ax = 0;
-    ay = 0;
 
-    GM = +document.getElementById("GM").value;
+    mx = x = +document.getElementById("x").value;
 
-    xM = canvas.width / 2;
-    yM = canvas . height / 2;
+    //time = +new Date();
 
-    time = +new Date();
+
   }
 
   window.onresize = reset
 
   reset();
   animate3();
+
+  function printMousePos(event) {
+    pause = false
+    if (event.clientY < 200) return;
+
+
+    x =  event.clientX - 500
+    mx = x;
+    
+    p =  event.clientY  - 500;
+    mp = p
+
+    
+}
+document.addEventListener("click", printMousePos);
 </script>
 
 </html>
