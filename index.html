@@ -66,14 +66,12 @@
 }
  
 
-  let E = 0
 const r = (x, y, x2, y2) => {
   return Math.sqrt(Math.pow((x - x2), 2) + Math.pow((y - y2), 2))
 }
 
-
-let dt = 0.00001;
-const frame_dt = 0.1;
+let dt = 0.0001;
+const frame_dt = 0.001;
 
 // Setup the canvas element.
 var canvas = document.getElementById("canvass")
@@ -86,129 +84,115 @@ var c3 = canvas.getContext( '2d' );
 canvas.width   = window.innerWidth;
 canvas.height  = window.innerHeight;
 
+gamma = 1;
+
+let pause = true;
+let first = true;
+
+let c = 100;
+let vmax = c*0.90;
+let v = 0;
+let a = 600
 
 
-let pause = false;
 
-let x = 100;
-let p = 2;
-let m = 1;
 
-let mx;
-let mp;
+L = 100;
+const tx = 500;
+S = {
+  C: -2*L,
+  dc:0,
+  T: -L,
+  dT: 0,
+  E: 0,
+  dE: 0,
+  U: L,
+  dU: 0
+}
 
-let dot_x = 0;
-let dot_p = 0;
-
-let w = 0.5;
+S1 = {
+  C: -2*L,
+  dc:0,
+  T: -L,
+  dT: 0,
+  E: 0,
+  dE: 0,
+  U: L,
+  dU: 0
+}
 
 
 // Animate the Circle
 function step() {
-  if (Math.abs(x) > 10000 || Math.abs(p) > 10000)
-    pause = true;
-
-
-    // Oscillatore parabolico
-  //dot_x = p/m;
-  //dot_p = -w*w*x * m;
-
-  //if (+new Date() - time > 1000) {
-  //  time = +new Date()
-  //  dot_p += 1000000;
-  //}
   
-  // iperbolico
-  dot_x = p/m;
-  dot_p = w*w*x * m;
-
-  // controllo
-  //  if (x > 200 ) {
-  //  dot_p = -50
-  //}
-  //if (x < -200 ) {
-  //  dot_p = 50
-  //}
-  
-
-
-  x += dot_x * dt;
-  p += dot_p * dt;
-
-
-  // osc ip
-  mx += -(mp / m) * dt;
-  mp += -(w*w*mx * m) * dt;
-
-// osc par
-  //mx += -(mp / m) * dt;
-  //mp += (w*w*mx * m) * dt;
-
 }
 
+// bad code
+
+
+
 function animate3() {
-    ax = x + 500
-    adot_x = 1;
-
-
-    ap = p + 500;
-    adot_p = 1
-
     requestAnimationFrame( animate3 );
-    //drawLineWithArrows(c3, ax - x, 100, ax, 100, "#FFFFFF", 4, 5, 6)
-    c3.clearRect( 0, 50 , canvas.width, 100 );
 
-    if (pause) {
+
+    if (pause && !first) {
       return
     }
+    first = false,
+
+    canvas.width = canvas.width
+
 
     //c3.clearRect( 0, 0 , canvas.width, canvas.height );
 
-    mx1 = mx;
-    mp1 = mp;
+    
+    //c3.beginPath();
+//
+    ////m
+    //c3.arc( ax, ap,  1, 0, Math.PI * 2, false  );
+    
 
-    c3.beginPath();
+    
 
-    //m
-    c3.arc( ax, ap,  1, 0, Math.PI * 2, false  );
-  
-    //M
+    for (i = 0; i <= frame_dt; i+= dt) {
+        S.C += v*dt;
+        S.T += v*dt;
+        S1.E -= v*dt;
+        S1.U -= v*dt;
 
-      for (i = 0; i <= frame_dt; i+= dt) {
-
-      step()
+        if (v < vmax) {
+      v += a*dt;
+    }
     }
 
+    c3.font = "20px Arial";
+    c3.fillText("S", 200, 120);
+    c3.fillText("S'", 200, 170);
 
-    // en osc ip
-    E = p*p/2/m - m * w*w * x * x / 2;
+    
+    drawLineWithArrows(c3, tx, 200, tx, 50)
+    // S
+    c3.strokeStyle = "blue"
+    l = S.T - S.C
+    c3.strokeRect(S.T + tx, 102, -l/gamma,  16 );
 
-    // Energia oscillatore parabolico
-    //E = p*p/2/m + w*w * x * x / 2;
+    l = S.U - S.E
+    c3.strokeStyle = "green"
+    c3.strokeRect(S.E + tx, 100, l,  20 );
 
+    // S'
+    c3.strokeStyle = "blue"
+    l = S1.T - S1.C
+    c3.strokeRect(S1.T + tx, 152, -l,  16 );
 
+    l = S1.U - S1.E
+    c3.strokeStyle = "green"
+    c3.strokeRect(S1.E + tx, 150, +l/gamma,  20 );
 
+    gamma =1/(Math.sqrt(1-v*v/c/c))
 
-    c3.strokeStyle = "#" + (E < 0 ? - E + 255:E).toString(16).split(".")[0];
-    //console.log("#" + E.toString(16));
-    ax2 = x + 500
-    ap2 = p + 500
-    c3.lineTo(ax2, ap2)
-    c3.stroke();
-
-
-
-
-    c3.beginPath()
-    c3.arc( mx1 + 500, mp1 + 500,  1, 0, Math.PI * 2, false  );
-    c3.lineTo(mx + 500, mp + 500)
-    c3.stroke()
-
-
-
-
-    drawLineWithArrows(c3, 500, 100, ax, 100)
-    //time = +new Date();
+    //c3.lineTo(ax2, ap2)
+    //c3.stroke();
 }
 
 const reset = () => {
@@ -222,14 +206,14 @@ const reset = () => {
   //dt = document.getElementById("dt").value / 1000;
 
     // Starting Position
-    x = 100;
-    p = .1;
-
-    w = +document.getElementById("w").value / 100;
-    mp = p = +document.getElementById("p").value / 100;
-
-
-    mx = x = +document.getElementById("x").value;
+    //x = 100;
+    //p = .1;
+//
+    //w = +document.getElementById("w").value / 100;
+    //mp = p = +document.getElementById("p").value / 100;
+//
+//
+    //mx = x = +document.getElementById("x").value;
 
     //time = +new Date();
 
@@ -242,7 +226,7 @@ const reset = () => {
   animate3();
 
   function printMousePos(event) {
-    pause = false
+        pause = !pause;
     if (event.clientY < 200) return;
 
 
