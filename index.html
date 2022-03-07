@@ -92,7 +92,7 @@ let first = true;
 let c = 100;
 let vmax = c*0.90;
 let v = 0;
-let a = 600
+let a = 500
 
 
 
@@ -100,9 +100,9 @@ let a = 600
 L = 100;
 const tx = 500;
 S = {
-  C: -2*L,
+  C: -1.5*L,
   dc:0,
-  T: -L,
+  T: -L*0.5,
   dT: 0,
   E: 0,
   dE: 0,
@@ -111,13 +111,13 @@ S = {
 }
 
 S1 = {
-  C: -2*L,
+  C: -L,
   dc:0,
-  T: -L,
+  T: 0,
   dT: 0,
-  E: 0,
+  E: L*0.5,
   dE: 0,
-  U: L,
+  U: 1.5*L,
   dU: 0
 }
 
@@ -155,15 +155,21 @@ function animate3() {
     
 
     for (i = 0; i <= frame_dt; i+= dt) {
+        Cold = S.T - L/gamma
+
         S.C += v*dt;
         S.T += v*dt;
         S1.E -= v*dt;
         S1.U -= v*dt;
+        
+        Cnew = S.T - L/gamma
+        v += a/gamma/gamma/gamma*dt;
+        //console.log(gamma, v)
+        //console.log(Math.sqrt(1-v*v/c/c))
+            console.log((Cold - Cnew)/dt)
+        
+    }
 
-        if (v < vmax) {
-      v += a*dt;
-    }
-    }
 
     c3.font = "20px Arial";
     c3.fillText("S", 200, 120);
@@ -189,7 +195,7 @@ function animate3() {
     c3.strokeStyle = "green"
     c3.strokeRect(S1.E + tx, 150, +l/gamma,  20 );
 
-    gamma =1/(Math.sqrt(1-v*v/c/c))
+    gamma =1/Math.sqrt(1-v*v/c/c)
 
     //c3.lineTo(ax2, ap2)
     //c3.stroke();
