@@ -2,6 +2,7 @@
   "name": "orbit",
   "version": "1.0.0",
   "dependencies": {
+    "camera-controls": "^1.34.2",
     "three": "^0.138.3"
   },
   "devDependencies": {
