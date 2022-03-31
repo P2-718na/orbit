@@ -11,6 +11,7 @@
     "webpack-cli": "^4.9.2"
   },
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "dev" :  "nodemon --watch src --exec npm run build"
   }
 }
