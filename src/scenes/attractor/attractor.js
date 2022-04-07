@@ -4,6 +4,7 @@ export default class Attractor {
 // private ////////////////////////////////////////////////
   #vertices = [];
   #particles;
+  #vertexCount;
 
   #sigma;
   #rho;
@@ -34,10 +35,10 @@ export default class Attractor {
   constructor(startCoordinates, { sigma, rho, beta }, vertexCount = 1E5, { pointTrailParameters }) {
     this.geometry = new THREE.BufferGeometry();
 
-    // Set initial vertex positions
-    for (let i = 0; i !== vertexCount; ++i) {
-      this.#vertices.push(...startCoordinates);
-    }
+    // No need to set initial vertex position for each vertex. Just memorize this value
+    // to avoid excessive lag.
+    this.#vertices.push(...startCoordinates);
+    this.#vertexCount = vertexCount
 
     // Set parameters
     this.#sigma = sigma;
@@ -54,6 +55,7 @@ export default class Attractor {
     this.material.color.setRGB(200, 200, 255); // todo maybe move this in config json if possible?
 
     this.#particles = new THREE.Points(this.geometry, this.material);
+    this.#particles.frustumCulled = false // fix disappearing particles when too close
   }
 
   sceneElement() {
@@ -62,13 +64,17 @@ export default class Attractor {
 
   loop(dt) {
     // Shift all forward by one position and push new position at the end
-    for (let i = 0; i !== 3; ++i) {
+    while (this.#vertices.length > this.#vertexCount) {
+      this.#vertices.shift(); // cleanme pls
+      this.#vertices.shift();
       this.#vertices.shift();
     }
+
     // todo dt needs to be smaller. Run nextPosition a lot then push all the pixels
     //  this dt needs to be variable depending on the distance of the last two points... Need more complex logic here
-    this.#vertices.push(...this.#nextPosition(dt / 2))
-
-    this.#updatePosition()
+    for (let i = 0; i !== 50; ++i) {
+      this.#vertices.push(...this.#nextPosition(dt / 10))
+      this.#updatePosition() // fixme questo è un po' sus, se lo tolgo dal for non si comporta come mi aspetto.
+    }
   }
 }

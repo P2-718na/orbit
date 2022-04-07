@@ -1,0 +1,4 @@
+These things need to be uniformed (parameters, configuration)...
+- Split "graphical" configuration from "logical" configuration
+- Add uniform function signatures across shared functions
+- Add event system instead of explicit call to loop() method
