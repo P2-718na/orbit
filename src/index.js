@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import Cloudchamber from "./scenes/cloudchamber/cloudchamber.js"
-import Attractor from "./scenes/attractor/attractor";
+import Cloudchamber from "./scene-elements/cloudchamber/cloudchamber.js"
+import Attractor from "./scene-elements/attractor/attractor";
 
 import CameraControls from 'camera-controls';
 CameraControls.install( { THREE: THREE } );
@@ -29,7 +29,7 @@ scene.add(gridHelper);
 const cc = new Cloudchamber(50,
   3E4,
   {
-    pointCloudParameters: require("../config/point-cloud-white.json"),
+    pointCloudParameters: require("../config/point-cloud.json"),
     vertexSpeed: 0.1,
   });
 
@@ -41,7 +41,7 @@ const la = new Attractor(
   { sigma: 10, rho: 28, beta: 8 / 3 },
   3E4,
   {
-    pointTrailParameters: require("../config/point-cloud-white.json"),
+    pointTrailParameters: require("../config/point-trail-blue.json"),
     plotSpeed: 0.1,
   });
 

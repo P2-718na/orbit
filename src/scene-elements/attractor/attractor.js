@@ -2,6 +2,9 @@ import * as THREE from "three";
 
 export default class Attractor {
 // private ////////////////////////////////////////////////
+  #geometry;
+  #material;
+
   #vertices = [];
   #particles;
   #vertexCount;
@@ -11,7 +14,7 @@ export default class Attractor {
   #beta;
 
   #updatePosition() {
-    this.geometry.setAttribute(
+    this.#geometry.setAttribute(
       'position',
       new THREE.Float32BufferAttribute(
         this.#vertices, 3
@@ -33,7 +36,12 @@ export default class Attractor {
 
 // public ////////////////////////////////////////////////
   constructor(startCoordinates, { sigma, rho, beta }, vertexCount = 1E5, { pointTrailParameters }) {
-    this.geometry = new THREE.BufferGeometry();
+
+    this.#geometry = new THREE.BufferGeometry();
+    // Generate material from configuration
+    this.#material = new THREE.LineBasicMaterial(
+      pointTrailParameters
+    );
 
     // No need to set initial vertex position for each vertex. Just memorize this value
     // to avoid excessive lag.
@@ -47,14 +55,7 @@ export default class Attractor {
 
     this.#updatePosition();
 
-    // Generate material from configuration
-    this.material = new THREE.PointsMaterial(
-      pointTrailParameters
-    );
-
-    this.material.color.setRGB(200, 200, 255); // todo maybe move this in config json if possible?
-
-    this.#particles = new THREE.Points(this.geometry, this.material);
+    this.#particles = new THREE.Line(this.#geometry, this.#material);
     this.#particles.frustumCulled = false // fix disappearing particles when too close
   }
 
