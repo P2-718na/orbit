@@ -2,9 +2,7 @@ import * as THREE from "three";
 
 export default class Cloudchamber {
 
-// public
-  particles;
-
+// public ////////////////////////////////////////////////
   constructor(edgeLength, vertexCount = 1E5, { pointCloudParameters, vertexSpeed }) {
     // Setup parameters
     this.vertexSpeed = vertexSpeed
@@ -31,7 +29,11 @@ export default class Cloudchamber {
     );
     this.material.color.setRGB(230, 230, 255); // todo maybe move this in config json if possible?
 
-    this.particles = new THREE.Points(this.geometry, this.material);
+    this.#particles = new THREE.Points(this.geometry, this.material);
+  }
+
+  sceneElement() {
+    return this.#particles;
   }
 
   loop(dt) {
@@ -47,7 +49,9 @@ export default class Cloudchamber {
     this.#updatePosition()
   }
 
-// Private
+// Private ////////////////////////////////////////////////
+  #particles;
+
   #updatePosition() {
     this.geometry.setAttribute(
       'position',

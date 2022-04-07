@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import Cloudchamber from "./cloudchamber/cloudchamber.js"
+import Attractor from "./attractor/attractor";
 
 import CameraControls from 'camera-controls';
 CameraControls.install( { THREE: THREE } );
@@ -24,6 +25,7 @@ const gridHelper = new THREE.GridHelper( 50, 10 );
 gridHelper.position.y = 0;
 scene.add(gridHelper);
 
+/*
 const cc = new Cloudchamber(50,
   3E4,
   {
@@ -31,7 +33,20 @@ const cc = new Cloudchamber(50,
     vertexSpeed: 0.1,
   });
 
-scene.add(cc.particles);
+scene.add(cc.sceneElement());
+*/
+
+const la = new Attractor(
+  [-5, 10, -5],
+  { sigma: 28, rho: 10, beta: 8 / 3 },
+  1E5,
+  {
+    pointCloudParameters: require("../config/point-cloud-white.json"),
+    plotSpeed: 0.1,
+  });
+
+scene.add(la.sceneElement());
+
 
 function render() {
   requestAnimationFrame(render);
@@ -40,7 +55,8 @@ function render() {
   const elapsed = clock.getElapsedTime();
   const updated = cameraControls.update(delta);
 
-  cc.loop(delta);
+  // cc.loop(delta);
+  la.loop(delta);
 
   renderer.render(scene, camera);
 }
