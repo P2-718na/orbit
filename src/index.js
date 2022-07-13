@@ -60,7 +60,14 @@ scene.add(lb.sceneElement());
 */
 
 const proj = new Projector4();
-scene.add(proj.sceneElement())
+scene.add(proj.sceneElement());
+
+const arr = proj.project3(new THREE.Vector4(1, 1, 0, 0))
+const orig = proj.project3(new THREE.Vector4(0, 0, 0, 1))
+const len = arr.length()
+const arrowHelper = new THREE.ArrowHelper(arr.normalize(), orig, len, 0x00ffff);
+scene.add(arrowHelper);
+
 
 function render() {
   requestAnimationFrame(render);
