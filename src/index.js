@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import Cloudchamber from "./scene-elements/cloudchamber/cloudchamber.js"
 import Attractor from "./scene-elements/attractor/attractor";
+import Projector4 from "./4d-projector/4d-projector";
 
 import CameraControls from 'camera-controls';
 CameraControls.install( { THREE: THREE } );
@@ -34,7 +35,7 @@ const cc = new Cloudchamber(50,
   });
 
 scene.add(cc.sceneElement());
-*/
+
 
 const la = new Attractor(
   [-1, 5, 1],
@@ -56,7 +57,10 @@ const lb = new Attractor(
 
 scene.add(la.sceneElement());
 scene.add(lb.sceneElement());
+*/
 
+const proj = new Projector4();
+scene.add(proj.sceneElement())
 
 function render() {
   requestAnimationFrame(render);
@@ -66,8 +70,8 @@ function render() {
   const updated = cameraControls.update(delta);
 
   // cc.loop(delta);
-  la.loop(delta); // todo this really needs to be implemented via event system...
-  lb.loop(delta)
+  //la.loop(delta); // todo this really needs to be implemented via event system...
+  //lb.loop(delta)
 
   renderer.render(scene, camera);
 }
