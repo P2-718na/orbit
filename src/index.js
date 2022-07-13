@@ -39,13 +39,23 @@ scene.add(cc.sceneElement());
 const la = new Attractor(
   [-1, 5, 1],
   { sigma: 10, rho: 28, beta: 8 / 3 },
-  3E4,
+  5E4,
   {
     pointTrailParameters: require("../config/point-trail-blue.json"),
     plotSpeed: 0.1,
   });
 
+const lb = new Attractor(
+  [-1.1, 5.1, 1.1],
+  { sigma: 10, rho: 28, beta: 8 / 3 },
+  5E4,
+  {
+    pointTrailParameters: require("../config/point-trail-crimson.json"),
+    plotSpeed: 0.1,
+  });
+
 scene.add(la.sceneElement());
+scene.add(lb.sceneElement());
 
 
 function render() {
@@ -57,6 +67,7 @@ function render() {
 
   // cc.loop(delta);
   la.loop(delta); // todo this really needs to be implemented via event system...
+  lb.loop(delta)
 
   renderer.render(scene, camera);
 }
