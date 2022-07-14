@@ -68,6 +68,52 @@ const len = arr.length()
 const arrowHelper = new THREE.ArrowHelper(arr.normalize(), orig, len, 0x00ffff);
 scene.add(arrowHelper);
 
+/*
+const geometry = new THREE.BufferGeometry();
+// create a simple square shape. We duplicate the top left and bottom right
+// vertices because each vertex needs to appear once per triangle.
+const vertices = new Float32Array( [
+  -1.0, -1.0,  1.0,
+  1.0, -1.0,  1.0,
+  1.0,  1.0,  2.0,
+
+  1.0,  1.0,  2.0,
+  -1.0,  1.0,  1.0,
+  -1.0, -1.0,  1.0
+] );
+
+// itemSize = 3 because there are 3 values (components) per vertex
+geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+const mesh = new THREE.Mesh( geometry, material );
+scene.add(mesh)
+*/
+
+import { Buffer } from 'buffer';
+global.Buffer = Buffer;
+const implicitMesh = require('implicit-mesh');
+/* This stuff adds some vulns */
+const { positions } = implicitMesh(64, function (x,y,z) {
+  return x*x + y*y + z*z - 0.2;
+});
+const vertices = new Float32Array(
+  positions.reduce((acc, vertex) => {
+    acc.push(...vertex.slice(0, 3));
+    return acc;
+  }, [])
+)
+
+//console.log(implicitMesh(64, function (x,y,z,w) {
+//  return x*x + y*y + z*z  + w*w - 0.2;
+//}))
+//console.log(vertices)
+
+const geometry = new THREE.BufferGeometry();
+geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+const mesh = new THREE.Mesh( geometry, material );
+scene.add(mesh)
+
 
 function render() {
   requestAnimationFrame(render);
