@@ -93,15 +93,21 @@ import { Buffer } from 'buffer';
 global.Buffer = Buffer;
 const implicitMesh = require('implicit-mesh');
 /* This stuff adds some vulns */
-const { positions } = implicitMesh(64, function (x,y,z) {
-  return x*x + y*y + z*z - 0.2;
+const { positions, cells } = implicitMesh(64, function (x,y,z) {
+  return x*x + y*y +z - 0.2;
 });
+
+console.log(cells)
+console.log(positions)
+// Correctly parse simplicial mesh
 const vertices = new Float32Array(
-  positions.reduce((acc, vertex) => {
-    acc.push(...vertex.slice(0, 3));
+  cells.reduce((acc, [x, y, z]) => {
+    acc.push(...positions[x], ...positions[y], ...positions[z]);
+
     return acc;
   }, [])
 )
+console.log(vertices)
 
 //console.log(implicitMesh(64, function (x,y,z,w) {
 //  return x*x + y*y + z*z  + w*w - 0.2;
@@ -110,9 +116,11 @@ const vertices = new Float32Array(
 
 const geometry = new THREE.BufferGeometry();
 geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-const material = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+const material = new THREE.MeshBasicMaterial( { color: 0x99ff99 } );
 const mesh = new THREE.Mesh( geometry, material );
 scene.add(mesh)
+
+//todo create parser for simplicial complex stuff diocane
 
 
 function render() {

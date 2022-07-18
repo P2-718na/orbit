@@ -6,7 +6,8 @@
     "camera-controls": "^1.34.2",
     "implicit-mesh": "^1.1.1",
     "matrix-multiplication": "^0.5.2",
-    "three": "^0.138.3"
+    "three": "^0.138.3",
+    "three-simplicial-complex": "^69.0.5"
   },
   "devDependencies": {
     "html-webpack-plugin": "^5.5.0",
