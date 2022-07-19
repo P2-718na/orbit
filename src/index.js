@@ -96,7 +96,7 @@ const implicitMesh = require('implicit-mesh');
 /* This stuff adds some vulns */
 const { positions, cells } = implicitMesh((x,y,z, w) => {
   return (x*x + y*y +z*z - w*w/2);
-}, {resolution:48, dimension:4});
+}, {resolution:[64, 64, 64, 5], dimension:4});
 
 // Correctly parse simplicial mesh
 // TODO: I need to split the projection code and the mesh format parsing code.
@@ -123,9 +123,6 @@ const material = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
 const mesh = new THREE.Mesh( geometry, material );
 mesh.material.side = THREE.DoubleSide;
 scene.add(mesh)
-
-//todo create parser for simplicial complex stuff diocane
-
 
 function render() {
   requestAnimationFrame(render);

@@ -4,7 +4,7 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "camera-controls": "^1.34.2",
-    "implicit-mesh": "git+https://github.com/P2-718na/implicit-mesh.git",
+    "implicit-mesh": "github:P2-718na/implicit-mesh",
     "matrix-multiplication": "^0.5.2",
     "three": "^0.138.3"
   },
