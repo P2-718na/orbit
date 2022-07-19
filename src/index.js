@@ -65,8 +65,9 @@ scene.add(proj.sceneElement());
 const arr = proj.project3(new THREE.Vector4(1, 1, 0, 0))
 const orig = proj.project3(new THREE.Vector4(0, 0, 0, 1))
 const len = arr.length()
-const arrowHelper = new THREE.ArrowHelper(arr.normalize(), orig, len, 0x00ffff);
-scene.add(arrowHelper);
+
+//const arrowHelper = new THREE.ArrowHelper(arr.normalize(), orig, len, 0x00ffff);
+//scene.add(arrowHelper);
 
 /*
 const geometry = new THREE.BufferGeometry();
@@ -93,31 +94,34 @@ import { Buffer } from 'buffer';
 global.Buffer = Buffer;
 const implicitMesh = require('implicit-mesh');
 /* This stuff adds some vulns */
-const { positions, cells } = implicitMesh(64, function (x,y,z) {
-  return x*x + y*y +z - 0.2;
-});
+const { positions, cells } = implicitMesh((x,y,z, w) => {
+  return (x*x + y*y +z*z - w*w/2);
+}, {resolution:48, dimension:4});
 
-console.log(cells)
-console.log(positions)
 // Correctly parse simplicial mesh
+// TODO: I need to split the projection code and the mesh format parsing code.
+// TODO: Also, I need to create some sort of 4D mesh object that can vary colour based on w position
 const vertices = new Float32Array(
-  cells.reduce((acc, [x, y, z]) => {
-    acc.push(...positions[x], ...positions[y], ...positions[z]);
+  cells
+    .map(positionIndices => [...(positionIndices.map(index => positions[index]))])
+    .map(vertexArray => [...(vertexArray.map(vertex => proj.project3(new THREE.Vector4(...vertex))))])
+    .reduce((acc, vertexArray) => {
+      acc.push(...(vertexArray.map(vertex => [...(vertex.toArray())])));
 
-    return acc;
-  }, [])
+      return acc;
+    }, [])
+    .reduce((acc, vertexArray) => {
+      acc.push(...vertexArray);
+
+      return acc;
+    }, [])
 )
-console.log(vertices)
-
-//console.log(implicitMesh(64, function (x,y,z,w) {
-//  return x*x + y*y + z*z  + w*w - 0.2;
-//}))
-//console.log(vertices)
 
 const geometry = new THREE.BufferGeometry();
 geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-const material = new THREE.MeshBasicMaterial( { color: 0x99ff99 } );
+const material = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
 const mesh = new THREE.Mesh( geometry, material );
+mesh.material.side = THREE.DoubleSide;
 scene.add(mesh)
 
 //todo create parser for simplicial complex stuff diocane
