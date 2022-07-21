@@ -26,17 +26,11 @@ const gridHelper = new THREE.GridHelper( 50, 10 );
 gridHelper.position.y = 0;
 scene.add(gridHelper);
 
-/*
-const cc = new Cloudchamber(50,
-  3E4,
-  {
-    pointCloudParameters: require("../config/point-cloud.json"),
-    vertexSpeed: 0.1,
-  });
+const cc = new Cloudchamber({}, require("../config/point-cloud.json"));
 
 scene.add(cc.sceneElement());
 
-
+/*
 const la = new Attractor(
   [-1, 5, 1],
   { sigma: 10, rho: 28, beta: 8 / 3 },
@@ -59,6 +53,7 @@ scene.add(la.sceneElement());
 scene.add(lb.sceneElement());
 */
 
+/*
 const proj = new Projector4();
 scene.add(proj.sceneElement());
 
@@ -90,10 +85,11 @@ const mesh = new THREE.Mesh( geometry, material );
 scene.add(mesh)
 */
 
+/*
 import { Buffer } from 'buffer';
 global.Buffer = Buffer;
 const implicitMesh = require('implicit-mesh');
-/* This stuff adds some vulns */
+// This stuff adds some vulns
 const { positions, cells } = implicitMesh((x,y,z, w) => {
   return (x*x + y*y +z*z - w*w/2);
 }, {resolution:[64, 64, 64, 5], dimension:4});
@@ -122,7 +118,7 @@ geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
 const material = new THREE.MeshBasicMaterial( { color: 0xff00ff } );
 const mesh = new THREE.Mesh( geometry, material );
 mesh.material.side = THREE.DoubleSide;
-scene.add(mesh)
+scene.add(mesh)*/
 
 function render() {
   requestAnimationFrame(render);
@@ -131,7 +127,7 @@ function render() {
   const elapsed = clock.getElapsedTime();
   const updated = cameraControls.update(delta);
 
-  // cc.loop(delta);
+   cc.loop(delta);
   //la.loop(delta); // todo this really needs to be implemented via event system...
   //lb.loop(delta)
 

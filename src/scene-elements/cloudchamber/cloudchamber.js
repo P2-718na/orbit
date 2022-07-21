@@ -1,35 +1,60 @@
 import * as THREE from "three";
 
 export default class Cloudchamber {
+  // Private ////////////////////////////////////////////////
+  #particles;
+  #geometry = new THREE.BufferGeometry();
+  #material = new THREE.PointsMaterial;
+  #vertices;
+
+  // Parameters ///////
+  #edgeLength;
+  #vertexCount;
+  #vertexSpeed;
+
+
+
+  #initializeParameters = ({ edgeLength, vertexCount, vertexSpeed }) => {
+    this.#edgeLength  = edgeLength  ?? 50;
+    this.#vertexCount = vertexCount ?? 1E4;
+    this.#vertexSpeed = vertexSpeed ?? .1;
+  }
+
+  #updatePosition() {
+    this.#geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(
+        this.#vertices, 3
+      )
+    );
+  }
 
 // public ////////////////////////////////////////////////
-  constructor(edgeLength, vertexCount = 1E5, { pointCloudParameters, vertexSpeed }) {
+  constructor(cloudchamberParameters, pointCloudParameters) {
     // Setup parameters
-    this.vertexSpeed = vertexSpeed
-
-    this.geometry = new THREE.BufferGeometry();
-    this.vertices = [];
+    this.#initializeParameters(cloudchamberParameters);
 
     // Set initial vertex positions
-    for (let i = 0; i !== vertexCount; ++i) {
+    this.#vertices = new Float32Array(this.#vertexCount * 3);
+    for (let i = 0; i !== this.#vertexCount; ++i) {
 
       // todo add randfloat function
-      const x = edgeLength * Math.random() - edgeLength / 2;
+      const x = this.#edgeLength * Math.random() - this.#edgeLength / 2;
       const y = Math.random();
-      const z = edgeLength * Math.random() - edgeLength / 2;
+      const z = this.#edgeLength * Math.random() - this.#edgeLength / 2;
 
-      this.vertices.push(x, y, z);
+      this.#vertices[3 * i]     = x;
+      this.#vertices[3 * i + 1] = y;
+      this.#vertices[3 * i + 2] = z;
     }
 
     this.#updatePosition();
 
     // Generate material from configuration
-    this.material = new THREE.PointsMaterial(
-      pointCloudParameters
-    );
-    this.material.color.setRGB(230, 230, 255); // todo maybe move this in config json if possible?
+    this.#material.setValues(pointCloudParameters);
+    this.#material.color.setRGB(230, 230, 255); // todo maybe move this in config json if possible?
 
-    this.#particles = new THREE.Points(this.geometry, this.material);
+    this.#particles = new THREE.Points(this.#geometry, this.#material);
   }
 
   sceneElement() {
@@ -37,9 +62,9 @@ export default class Cloudchamber {
   }
 
   loop(dt) {
-    this.vertices = this.vertices.map((e, i) => {
+    this.#vertices = this.#vertices.map((e, i) => {
       if ((i + 2) % 3 === 0) {
-        const nextPos = (e - this.vertexSpeed * dt)
+        const nextPos = (e - this.#vertexSpeed * dt)
         return nextPos < 0 ? nextPos + 1 : nextPos; //todo do this with a modulo pls
       }
 
@@ -47,17 +72,5 @@ export default class Cloudchamber {
     })
 
     this.#updatePosition()
-  }
-
-// Private ////////////////////////////////////////////////
-  #particles;
-
-  #updatePosition() {
-    this.geometry.setAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(
-        this.vertices, 3
-      )
-    );
   }
 }
