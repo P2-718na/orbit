@@ -11,7 +11,7 @@ const height = window.innerHeight;
 const clock = new THREE.Clock();
 const scene = new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(width, height);
 document.body.appendChild( renderer.domElement );
 
@@ -26,7 +26,8 @@ const gridHelper = new THREE.GridHelper( 50, 10 );
 gridHelper.position.y = 0;
 scene.add(gridHelper);
 
-const cc = new Cloudchamber({}, require("../config/point-cloud.json"));
+const cloudchamberParameters = { vertexSpeed: .25, vertexCount: 5E5, chamberDepth: .8, chamberWidth: 30 }
+const cc = new Cloudchamber(cloudchamberParameters, require("../config/point-cloud.js"));
 
 scene.add(cc.sceneElement());
 

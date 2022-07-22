@@ -3,21 +3,23 @@ import * as THREE from "three";
 export default class Cloudchamber {
   // Private ////////////////////////////////////////////////
   #particles;
-  #geometry = new THREE.BufferGeometry();
+  #geometry = new THREE.BufferGeometry;
   #material = new THREE.PointsMaterial;
   #vertices;
 
   // Parameters ///////
-  #edgeLength;
+  #chamberWidth;
+  #chamberDepth;
   #vertexCount;
   #vertexSpeed;
 
 
 
-  #initializeParameters = ({ edgeLength, vertexCount, vertexSpeed }) => {
-    this.#edgeLength  = edgeLength  ?? 50;
-    this.#vertexCount = vertexCount ?? 1E4;
-    this.#vertexSpeed = vertexSpeed ?? .1;
+  #initializeParameters = ({ chamberWidth, chamberDepth, vertexCount, vertexSpeed }) => {
+    this.#chamberWidth = chamberWidth ?? 50;
+    this.#chamberDepth = chamberDepth ?? .1;
+    this.#vertexCount  = vertexCount  ?? 1E4;
+    this.#vertexSpeed  = vertexSpeed  ?? .1;
   }
 
   #updatePosition() {
@@ -39,9 +41,9 @@ export default class Cloudchamber {
     for (let i = 0; i !== this.#vertexCount; ++i) {
 
       // todo add randfloat function
-      const x = this.#edgeLength * Math.random() - this.#edgeLength / 2;
-      const y = Math.random();
-      const z = this.#edgeLength * Math.random() - this.#edgeLength / 2;
+      const x = this.#chamberWidth * Math.random() - this.#chamberWidth / 2;
+      const y = Math.random() * this.#chamberDepth;
+      const z = this.#chamberWidth * Math.random() - this.#chamberWidth / 2;
 
       this.#vertices[3 * i]     = x;
       this.#vertices[3 * i + 1] = y;
@@ -65,7 +67,7 @@ export default class Cloudchamber {
     this.#vertices = this.#vertices.map((e, i) => {
       if ((i + 2) % 3 === 0) {
         const nextPos = (e - this.#vertexSpeed * dt)
-        return nextPos < 0 ? nextPos + 1 : nextPos; //todo do this with a modulo pls
+        return nextPos < 0 ? nextPos + this.#chamberDepth : nextPos; //todo do this with a modulo pls
       }
 
       return e
