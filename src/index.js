@@ -26,10 +26,25 @@ const gridHelper = new THREE.GridHelper( 50, 10 );
 gridHelper.position.y = 0;
 scene.add(gridHelper);
 
-const cloudchamberParameters = { vertexSpeed: .25, vertexCount: 5E5, chamberDepth: .8, chamberWidth: 30 }
+const cloudchamberParameters = { vertexSpeed: .25, vertexCount: 1E4, chamberDepth: .8, chamberWidth: 30 }
 const cc = new Cloudchamber(cloudchamberParameters, require("../config/point-cloud.js"));
 
 scene.add(cc.sceneElement());
+
+/*
+import perlinNoise3d from 'perlin-noise-3d'
+let n = new perlinNoise3d();
+n.noiseSeed(Math.PI);
+
+let size = 10;
+let output = [];
+for (let x = 0; x < size; x++) {
+  for (let y = 0; y < size; y++) {
+    output.push({ x:x, y:y, value: n.get(x/10, y/10)});
+  }
+}
+console.table(output);
+*/
 
 /*
 const la = new Attractor(
