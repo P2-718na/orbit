@@ -6,7 +6,6 @@
     "camera-controls": "^1.34.2",
     "implicit-mesh": "github:P2-718na/implicit-mesh",
     "matrix-multiplication": "^0.5.2",
-    "perlin-noise-3d": "^0.5.4",
     "three": "^0.138.3"
   },
   "devDependencies": {

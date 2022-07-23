@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import project_vertexGlsl from "three/src/renderers/shaders/ShaderChunk/project_vertex.glsl";
 
-const defaultForceField = (x, y, z) => {
-  return [0, 0, -.1];
+const defaultVelocityField = (x, y, z) => {
+  return [0, -.5*((1-y)**2), 0];
 }
 
 export default class Cloudchamber {
@@ -11,7 +11,6 @@ export default class Cloudchamber {
   #geometry = new THREE.BufferGeometry;
   #material = new THREE.PointsMaterial;
   #vertices;
-  #vertexVelocities;
 
   // Parameters ///////
   #chamberWidth;
@@ -19,16 +18,20 @@ export default class Cloudchamber {
   #vertexCount;
   #vertexMass
   #dampenFactor;
-  #forceField;
+  #velocityField;
 
-  #initializeParameters = ({ chamberWidth, chamberDepth, vertexCount, vertexMass, dampenFactor, forceField }) => {
+  // todo add randfloat function
+  // Todo maybe add possibility to have more complex bounding box
+  #randomX = () => this.#chamberWidth * Math.random() - this.#chamberWidth / 2;
+  #randomY = () => Math.random() * this.#chamberDepth;
+  #randomZ = () => this.#chamberWidth * Math.random() - this.#chamberWidth / 2;
+
+  #initializeParameters = ({ chamberWidth, chamberDepth, vertexCount, velocityField }) => {
     this.#chamberWidth = chamberWidth ?? 50;
     this.#chamberDepth = chamberDepth ?? .1;
     this.#vertexCount  = vertexCount  ?? 1E4;
-    this.#vertexMass   = vertexMass   ?? 1;
-    this.#dampenFactor = dampenFactor ?? 9;
 
-    this.#forceField = forceField ?? defaultForceField;
+    this.#velocityField = velocityField ?? defaultVelocityField;
   }
 
   #updatePosition() {
@@ -49,17 +52,14 @@ export default class Cloudchamber {
     this.#vertices = new Float32Array(this.#vertexCount * 3);
     for (let i = 0; i !== this.#vertexCount; ++i) {
 
-      // todo add randfloat function
-      const x = this.#chamberWidth * Math.random() - this.#chamberWidth / 2;
-      const y = Math.random() * this.#chamberDepth;
-      const z = this.#chamberWidth * Math.random() - this.#chamberWidth / 2;
+      const x = this.#randomX();
+      const y = this.#randomY();
+      const z = this.#randomZ();
 
       this.#vertices[3 * i]     = x;
       this.#vertices[3 * i + 1] = y;
       this.#vertices[3 * i + 2] = z;
     }
-    // todo set initial random speeds
-    this.#vertexVelocities = Array.from(new Array(this.#vertexCount).keys()).map(_ => [0, 0, 0]);
 
     this.#updatePosition();
 
@@ -75,36 +75,34 @@ export default class Cloudchamber {
   }
 
   loop(dt) {
-    //console.log(this.#vertices.slice(0, 10))
-    //console.log(this.#vertexVelocities.slice(0, 10))
-    this.#vertexVelocities = this.#vertexVelocities.map((vertexVelocity, vertexIndex) => {
-      const [x, y, z] = [0, 1, 2].map(e => this.#vertices[(vertexIndex * 3) + e])
-
-      const dv = [0, 1, 2].map(i => {
-        return (this.#vertexMass * this.#forceField(x, y, z)[i] - this.#dampenFactor * vertexVelocity[i]) * dt
-      })
-
-      return vertexVelocity.map((vi, i) => vi + dv[i]);
-    })
-
     this.#vertices = this.#vertices.map((vertexComponent, vertexComponentIndex, vertices) => {
       const vertexIndex = Math.floor(vertexComponentIndex / 3);
 
-      let   [vx, vy, vz] = this.#vertexVelocities[vertexIndex];
+      const [x, y, z]    = [0, 1, 2].map(i => vertices[vertexIndex * 3 + i])
+      const [vx, vy, vz] = this.#velocityField(x, y, z);
 
+      // Todo create appropriate wrap around functions if out of boundary
       // If this is a x component...
       if (vertexComponentIndex % 3 === 0) {
-        return vertexComponent + (vx * dt)
+        const next = vertexComponent + (vx * dt);
+        const boundary = this.#chamberWidth / 2;
+
+        return (-boundary <= next && next <= boundary)? next : this.#randomX();
       }
 
       // If this is a y component...
       if (vertexComponentIndex % 3 === 1) {
-        return vertexComponent + (vy * dt)
+        const next = vertexComponent + (vy * dt);
+
+        return (0 <= next && next <= this.#chamberDepth)? next : this.#randomY();
       }
 
       // If this is a z component...
       if (vertexComponentIndex % 3 === 2) {
-        return vertexComponent + (vz * dt)
+        const next = vertexComponent + (vz * dt);
+        const boundary = this.#chamberWidth / 2;
+
+        return (-boundary <= next && next <= boundary)? next : this.#randomZ();
       }
     }, this)
 
