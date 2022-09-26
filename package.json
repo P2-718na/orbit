@@ -4,9 +4,11 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "camera-controls": "^1.34.2",
+    "fs-extra": "^10.1.0",
     "implicit-mesh": "github:P2-718na/implicit-mesh",
     "matrix-multiplication": "^0.5.2",
-    "three": "^0.138.3"
+    "three": "^0.138.3",
+    "typewriter-effect": "^2.19.0"
   },
   "devDependencies": {
     "html-webpack-plugin": "^5.5.0",
@@ -15,6 +17,6 @@
   },
   "scripts": {
     "build": "webpack",
-    "dev": "nodemon --watch src --watch config --exec npm run build"
+    "dev": "nodemon --watch src --watch config --watch pages --exec npm run build -e js,ejs,json"
   }
 }

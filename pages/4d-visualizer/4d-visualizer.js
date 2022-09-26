@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import Cloudchamber from "./scene-elements/cloudchamber/cloudchamber.js"
-import Attractor from "./scene-elements/attractor/attractor";
-import Projector4 from "./4d-projector/4d-projector";
+import Cloudchamber from "../../src/scene-elements/cloudchamber/cloudchamber.js"
+import Attractor from "../../src/scene-elements/attractor/attractor";
+import Projector4 from "../../src/4d-projector/4d-projector";
 
 import CameraControls from 'camera-controls';
 CameraControls.install( { THREE: THREE } );
