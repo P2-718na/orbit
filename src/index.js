@@ -27,10 +27,9 @@ gridHelper.position.y = 0;
 scene.add(gridHelper);
 
 const cloudchamberParameters = {
-  vertexSpeed: .25,
-  vertexCount: 5E4,
+  vertexCount: 1E4,
   chamberDepth: .8,
-  chamberWidth: 30,
+  chamberWidth: 10,
   velocityField: (x, y, z) => [.3*Math.cos(y), .1*Math.cos(x)*Math.cos(y), .3*Math.sin(x)],
 }
 const cc = new Cloudchamber(cloudchamberParameters, require("../config/point-cloud.js"));

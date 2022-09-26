@@ -7,9 +7,9 @@ const defaultVelocityField = (x, y, z) => {
 
 export default class Cloudchamber {
   // Private ////////////////////////////////////////////////
-  #particles;
-  #geometry = new THREE.BufferGeometry;
-  #material = new THREE.PointsMaterial;
+  #particles = new THREE.Points;
+  #geometry  = new THREE.BufferGeometry;
+  #material  = new THREE.PointsMaterial;
   #vertices;
 
   // Parameters ///////

@@ -25,7 +25,7 @@ module.exports = {
   sizeAttenuation: true,
   alphaTest: .5,
   transparent: true,
-  map: createCircleTexture('#aaaaaa', 3),
+  map: createCircleTexture('#aaaaaa', 5),
   depthWrite: false
   //alphaMap: new THREE.TextureLoader().load("../assets/textures/drop.png"),
 };
