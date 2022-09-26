@@ -8,10 +8,8 @@ better understand _stuff_ whenever a professor refuses to answer my questions.
 
 ## How to use
 You are probably gonna need to install dependencies. Which means:
-1) `$ generic-package-manager install nodejs`
+1) `$ [package-manager] install nodejs`
 2) `$ npm install`
-3)
-then:
-- To see the **new and exciting** stuff: clone > `$ npm run build` > open `dist/index.html`.
-- For the old stuff: clone > switch branch > open `index.html`.
+3) `$ nom run build`
+4) Open `dist/html/index.html` in your browser.
 
