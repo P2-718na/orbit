@@ -1,3 +1,5 @@
+import "./style.css";
+
 const Typewriter = require("typewriter-effect/dist/core");
 
 const splash = `<span style="color: gray;">welcome to </span> orbit.`

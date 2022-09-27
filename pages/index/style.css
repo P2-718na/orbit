@@ -1,0 +1,10 @@
+/* https://github.com/dreampulse/computer-modern-web-font */
+body {
+    font-family: "Computer Modern Serif", sans-serif;
+    background: black;
+}
+
+#splash {
+    color: whitesmoke;
+    font-size: xxx-large;
+}
