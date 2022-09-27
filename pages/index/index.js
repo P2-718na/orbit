@@ -1,4 +1,4 @@
-import "./style.css";
+import "./index.css";
 
 const Typewriter = require("typewriter-effect/dist/core");
 
@@ -12,3 +12,10 @@ new Typewriter('#splash', {
   delay: 75,
 });
 
+console.log(localStorage.getItem("firstTime"))
+if (localStorage.getItem("firstTime") !== null) {
+  const libraryAnimated = document.getElementById("library");
+  libraryAnimated.className = ""
+}
+
+localStorage.setItem("firstTime", "false");

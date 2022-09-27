@@ -19,6 +19,6 @@
   },
   "scripts": {
     "build": "webpack",
-    "dev": "nodemon --watch src --watch config --watch pages --exec npm run build -e js,ejs,json"
+    "dev": "nodemon --watch src --watch config --watch pages --exec npm run build -e js,ejs,json,css"
   }
 }

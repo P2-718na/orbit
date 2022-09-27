@@ -1,0 +1,41 @@
+/* https://github.com/dreampulse/computer-modern-web-font */
+body {
+    font-family: "Computer Modern Serif", sans-serif;
+    background: black;
+    color: whitesmoke;
+}
+
+#splash {
+    color: whitesmoke;
+    font-size: xxx-large;
+}
+
+/* Diagonal text css */
+.box { float: left; width: 30px; height: 100px; }
+.diagonal {
+    -webkit-transform: rotate(-60deg);
+    -moz-transform: rotate(-60deg);
+    -ms-transform: rotate(-60deg);
+    -o-transform: rotate(-60deg);
+    transform: rotate(-60deg);
+    display: inline-block;
+    height: 20px;
+    width: 200px
+}
+
+.fadein-slow {
+    animation: fadeInAnimation ease 6s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+@keyframes fadeInAnimation {
+    0% {
+        opacity: 0;
+    }
+    75% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
