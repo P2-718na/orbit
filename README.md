@@ -10,6 +10,6 @@ better understand _stuff_ whenever a professor refuses to answer my questions.
 You are probably gonna need to install dependencies. Which means:
 1) `$ [package-manager] install nodejs`
 2) `$ npm install`
-3) `$ nom run build`
+3) `$ npm run build`
 4) Open `dist/html/index.html` in your browser.
 
