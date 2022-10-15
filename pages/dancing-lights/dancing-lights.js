@@ -21,7 +21,7 @@ const cameraControls = new CameraControls( camera, renderer.domElement );
 
 const gridHelper = new THREE.GridHelper( 50, 10 );
 gridHelper.position.y = 0;
-//scene.add(gridHelper);
+scene.add(gridHelper);
 
 
 
@@ -53,18 +53,29 @@ scene.add(sunLight);
 var Geometry, Material;
 var objectArray = [];
 
-Geometry = new THREE.BoxGeometry(1, 2, 4);
+Geometry = new THREE.BoxGeometry(2, .1, 2);
 Material = new THREE.MeshPhongMaterial({
   color: 0x00ff00
 });
+
 var Mash = new THREE.Mesh(Geometry, Material);
 Mash.position.set(
-  - 2.5,
+  0,
   0,
   0
 );
 objectArray.push(Mash);
 scene.add(Mash);
+
+const Screen = new THREE.BoxGeometry(.2, 20, 20);
+var screen = new THREE.Mesh(Screen, Material);
+screen.position.set(
+  -10,
+  5,
+  0
+);
+objectArray.push(screen);
+scene.add(screen);
 
 var LaserBeam1 = new LaserBeam({
   reflectMax: 1,
@@ -111,6 +122,7 @@ function LaserBeam(config) {
     this.object3d.add(mesh);
   }
   Mash.geometry.attributes.position.needsUpdate = true
+
 
   if (config.reflectMax > 0) {
     config.reflectMax--;
@@ -217,12 +229,13 @@ function render() {
   const elapsed = clock.getElapsedTime();
   const updated = cameraControls.update(delta);
 
-  LaserBeam1.object3d.position.set(4.5, 0, 7);
+  LaserBeam1.object3d.position.set(10, 5, 0);
   LaserBeam1.intersect(
-    new THREE.Vector3(-4.5, 0, -4.5 + Math.cos(Date.now() * 0.05 * Math.PI / 180) * 2),
+    new THREE.Vector3(-1, -.5, 0),
     objectArray
   );
-  Mash.position.set(Math.cos(elapsed), 0, 0)
+  Mash.position.set(0, 0.1*Math.cos(elapsed), 0)
+  Mash.rotation.set( 0.1*Math.cos(elapsed), 0, 0.1*Math.sin(elapsed))
   renderer.render(scene, camera);
 }
 render();
