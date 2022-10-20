@@ -11,13 +11,13 @@ const generateMembrane = (width, t) => {
   return (u, v, vec3) => {
     const x = u * width - 5;
     const z = v * width - 5;
-    const r = 3;
+    const r = 2;
     const n = 3;
     const h = 2;
     const k = Math.PI*n/(r * r + h * h)
     const w = 1;
      //vec3.set(x, 4 * Math.sin(x) * Math.sin(z) * Math.sin(t), z);
-    vec3.set(x, 20*2*h*Math.sin(k * Math.sqrt(x*x + z*z + h*h))*Math.cos(w * n * t) / Math.pow((x*x + z * z + h * h), 2), z);
+    vec3.set(x, 1*2*h*Math.sin(k * Math.sqrt(x*x + z*z + h*h))*Math.cos(w * n * t) / Math.pow((x*x + z * z + h * h), 2), z);
   }
 }
 
