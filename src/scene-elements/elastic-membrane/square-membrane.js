@@ -4,6 +4,8 @@ import {Vector3} from "three";
 
 const { PI, pow, sqrt, sin, cos } = Math;
 
+const norm = ([a, b]) => sqrt(pow(a, 2) + pow(b, 2));
+
 export default class SquareMembrane {
   // private ////////////////////////////////////////////////
   #a1;
@@ -12,14 +14,10 @@ export default class SquareMembrane {
   #sigma;
   #s0;
   #v;
-  #slices = 24;
-  #stacks = 24;
+  #slices = 12;
+  #stacks = 12;
 
-  #k;
-  #k1;
-  #k2;
-  #n1;
-  #n2;
+  #waves = [];
 
   // THREE.js stuff
   #geometry;
@@ -27,12 +25,14 @@ export default class SquareMembrane {
   #mesh;
 
   #oscillationEquation = (x, z, t) => {
-    const s0 = this.#s0;
-    const k1 = this.#k1;
-    const k2 = this.#k2;
-    const w = this.#k * this.#v;
+    return this.#waves
+      .reduce((acc, { k1, k2, w, A }) => {
+        return acc + 4 * A * sin(k1 * x) * sin(k2 * z) * sin(w * t);
+      }, 0);
+  }
 
-    return 4 * s0 * sin(k1 * x) * sin(k2 * z) * sin(w * t);  //+ 4 * s0 * sin(k1 * x) * sin(k2*3 * z) * sin(w*4 * t);
+  #calcKn = (n, a) => {
+    return n * PI / a;
   }
 
   // public /////////////////////////////////////////////////
@@ -43,8 +43,6 @@ export default class SquareMembrane {
     this.#sigma = surfaceMassDensity;
     this.#s0 = amplitude;
     this.#v = sqrt(this.#T / this.#sigma);
-
-    this.setNormalMode(1, 1);
 
     this.#geometry = new ParametricGeometry(this.getParametricEquation(1), this.#slices, this.#stacks);
     this.#material = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
@@ -63,14 +61,21 @@ export default class SquareMembrane {
   }
 
   // Set normal mode of oscillation
-  setNormalMode(n1, n2) {
-    this.#n1 = n1;
-    this.#n2 = n2;
+  setNormalModes(modes) {
+    this.#waves = modes
+      .map(({ n1, n2, A }) => {
+        const k1 = this.#calcKn(n1, this.#a1);
+        const k2 = this.#calcKn(n2, this.#a2);
+        const k = norm([k1, k2]);
+        const w = k * this.#v;
 
-    this.#k1 = n1 * PI / this.#a1;
-    this.#k2 = n2 * PI / this.#a2;
-
-    this.#k = sqrt(pow(this.#k1, 2) + pow(this.#k2, 2));
+        return {
+          k1,
+          k2,
+          w,
+          A: A ?? this.#s0,
+        };
+      })
   }
 
 

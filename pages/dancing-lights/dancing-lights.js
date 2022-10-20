@@ -8,8 +8,8 @@ import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeom
 const { scene, clock, renderer, camera, cameraControls } = setupDefaultScene(THREE);
 
 
-const membrane = new SquareMembrane(5, 10, 1, 1, .02);
-membrane.setNormalMode(2, 3);
+const membrane = new SquareMembrane(5, 5, 1, 1, .005);
+membrane.setNormalModes([{n1: 4, n2: 1}, {n1: 3, n2: 5}, {n1: 2, n2: 3, A:.01}]);
 
 
 var Ambient, sunLight;
