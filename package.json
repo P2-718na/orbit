@@ -8,7 +8,6 @@
     "implicit-mesh": "github:P2-718na/implicit-mesh",
     "matrix-multiplication": "^0.5.2",
     "three": "^0.138.3",
-    "three-laser-pointer": "^1.2.3",
     "typewriter-effect": "^2.19.0"
   },
   "devDependencies": {
