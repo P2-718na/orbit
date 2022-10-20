@@ -1,20 +1,25 @@
+import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry";
+import * as THREE from "three";
+import {Vector3} from "three";
 
 const { PI, pow, sqrt, sin, cos } = Math;
 
 export default class SquareMembrane {
   // private ////////////////////////////////////////////////
-  #a1
-  #a2
-  #T
-  #sigma
-  #s0
-  #v
+  #a1;
+  #a2;
+  #T;
+  #sigma;
+  #s0;
+  #v;
+  #slices = 24;
+  #stacks = 24;
 
-  #k
-  #k1
-  #k2
-  #n1
-  #n2
+  #k;
+  #k1;
+  #k2;
+  #n1;
+  #n2;
 
   // THREE.js stuff
   #geometry;
@@ -27,7 +32,7 @@ export default class SquareMembrane {
     const k2 = this.#k2;
     const w = this.#k * this.#v;
 
-    return 4 * s0 * sin(k1 * x) * sin(k2 * z) * (w * t)
+    return 4 * s0 * sin(k1 * x) * sin(k2 * z) * sin(w * t);  //+ 4 * s0 * sin(k1 * x) * sin(k2*3 * z) * sin(w*4 * t);
   }
 
   // public /////////////////////////////////////////////////
@@ -38,13 +43,20 @@ export default class SquareMembrane {
     this.#sigma = surfaceMassDensity;
     this.#s0 = amplitude;
     this.#v = sqrt(this.#T / this.#sigma);
+
+    this.setNormalMode(1, 1);
+
+    this.#geometry = new ParametricGeometry(this.getParametricEquation(1), this.#slices, this.#stacks);
+    this.#material = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
+    this.#mesh = new THREE.Mesh(this.#geometry, this.#material);
+    this.#mesh.material.side = THREE.BackSide;
   }
 
   // Generate parametric surface function for a set time. (Compatible with THREE.js ParametricGeometry).
   getParametricEquation(time) {
     return (u, v, Vec3) => {
       const x = u * this.#a1;
-      const z = u * this.#a2;
+      const z = v * this.#a2;
 
       Vec3.set(x, this.#oscillationEquation(x, z, time), z)
     }
@@ -63,10 +75,11 @@ export default class SquareMembrane {
 
 
   sceneElement() {
-    return this.#particles;
+    return this.#mesh;
   }
 
-  loop(dt) {
-
+  loop(dt, t) {
+    this.#geometry = new ParametricGeometry(this.getParametricEquation(t), this.#slices, this.#stacks);
+    this.#mesh.geometry = this.#geometry;
   }
 }

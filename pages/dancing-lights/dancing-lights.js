@@ -1,29 +1,16 @@
 import * as THREE from "three";
 import LaserBeam from "../../src/scene-elements/laser/laser.js";
-const implicitMesh = require('implicit-mesh');
+import SquareMembrane from "../../src/scene-elements/elastic-membrane/square-membrane";
 import setupDefaultScene from "../../src/utils/setup-default-scene";
 
 import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry.js";
 
 const { scene, clock, renderer, camera, cameraControls } = setupDefaultScene(THREE);
 
-const generateMembrane = (width, t) => {
-  return (u, v, vec3) => {
-    const x = u * width;
-    const z = v * width;
 
-    vec3.set(x, .1 * Math.sin(x) * Math.sin(z) * Math.sin(t), z);
-  }
-}
+const membrane = new SquareMembrane(5, 10, 1, 1, .02);
+membrane.setNormalMode(2, 3);
 
-const membrane = generateMembrane(10, 0);
-const geometry = new ParametricGeometry(membrane, 128, 128);
-const material = new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: true } );
-const mesh = new THREE.Mesh( geometry, material );
-mesh.material.side = THREE.BackSide;
-mesh.position.set(-5, 0, -5)
-//mesh.position.set(0, 0, 0)
-scene.add(mesh)
 
 var Ambient, sunLight;
 
@@ -63,7 +50,7 @@ Mash.position.set(
   0
 );
 //objectArray.push(Mash);
-objectArray.push(mesh);
+objectArray.push(membrane.sceneElement());
 //scene.add(Mash);
 
 const Screen = new THREE.BoxGeometry(.2, 20, 20);
@@ -133,6 +120,8 @@ document.onkeydown = (e) => {
 
 LaserBeam1.object3d.position.set(10, 5, 0);
 
+membrane.sceneElement().position.set(-4, 0, -4);
+scene.add(membrane.sceneElement());
 function render() {
   requestAnimationFrame(render);
 
@@ -140,9 +129,7 @@ function render() {
   const elapsed = clock.getElapsedTime();
   const updated = cameraControls.update(delta);
 
-  const membrane = generateMembrane(10, elapsed);
-  const geometry = new ParametricGeometry(membrane, 32, 32);
-  mesh.geometry = geometry;
+  membrane.loop(delta, elapsed)
 
   const laserLookAt = new THREE.Vector3();
   laserLookAt.setFromSpherical(laserRotation)
