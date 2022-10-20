@@ -3,7 +3,7 @@ import * as THREE from "three";
 export default function LaserBeam(config) {
   this.object3d = new THREE.Object3D();
   this.reflectObject = null;
-  this.pointLight = new THREE.PointLight(0xffffff, 1, 4);
+  this.pointLight = new THREE.PointLight(0xffffff, .5, 1);
   var raycaster = new THREE.Raycaster();
   var canvas = generateLaserBodyCanvas();
   var texture = new THREE.Texture(canvas);
