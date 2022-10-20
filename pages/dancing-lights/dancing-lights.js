@@ -9,29 +9,23 @@ const { scene, clock, renderer, camera, cameraControls } = setupDefaultScene(THR
 
 const generateMembrane = (width, t) => {
   return (u, v, vec3) => {
-    const x = u * width - 5;
-    const z = v * width - 5;
-    const r = 2;
-    const n = 3;
-    const h = 2;
-    const k = Math.PI*n/(r * r + h * h)
-    const w = 1;
-     //vec3.set(x, 4 * Math.sin(x) * Math.sin(z) * Math.sin(t), z);
-    vec3.set(x, 1*2*h*Math.sin(k * Math.sqrt(x*x + z*z + h*h))*Math.cos(w * n * t) / Math.pow((x*x + z * z + h * h), 2), z);
+    const x = u * width;
+    const z = v * width;
+
+    vec3.set(x, .1 * Math.sin(x) * Math.sin(z) * Math.sin(t), z);
   }
 }
 
 const membrane = generateMembrane(10, 0);
-const geometry = new ParametricGeometry(membrane, 64, 64);
+const geometry = new ParametricGeometry(membrane, 128, 128);
 const material = new THREE.MeshBasicMaterial( { color: 0xffffff, wireframe: true } );
 const mesh = new THREE.Mesh( geometry, material );
 mesh.material.side = THREE.BackSide;
-//mesh.position.set(-5, 0, -5)
-mesh.position.set(0, 0, 0)
+mesh.position.set(-5, 0, -5)
+//mesh.position.set(0, 0, 0)
 scene.add(mesh)
 
 var Ambient, sunLight;
-var LaserBeam1;
 
 //Mouse evnet
 var mouse = {
@@ -82,11 +76,13 @@ screen.position.set(
 objectArray.push(screen);
 scene.add(screen);
 
-var LaserBeam1 = new LaserBeam({
+const LaserBeam1 = new LaserBeam({
   reflectMax: 1,
   length: 100,
 });
 add2Scene(LaserBeam1);
+
+const laserRotation = new THREE.Spherical(1, 4, 3.14/ 2);
 
 function add2Scene(obj) {
   scene.add(obj.object3d);
@@ -99,20 +95,38 @@ function add2Scene(obj) {
 
 document.onkeydown = (e) => {
   e = e || new Event();
-  const { keyCode } = e;
+  const { key } = e;
 
-  switch (keyCode) {
-    case 65:
-      LaserBeam1.object3d.position.z -= .5;
+  switch (key) {
+    case "h":
+      LaserBeam1.object3d.position.x -= .1;
       break;
-    case 68:
-      LaserBeam1.object3d.position.z += .5;
+    case "n":
+      LaserBeam1.object3d.position.x += .1;
       break;
-    case 83:
-      LaserBeam1.object3d.position.x -= .5;
+    case "i":
+      LaserBeam1.object3d.position.y -= .1;
       break;
-    case 87:
-      LaserBeam1.object3d.position.x += .5;
+    case "k":
+      LaserBeam1.object3d.position.y += .1;
+      break;
+    case "j":
+      LaserBeam1.object3d.position.z -= .1;
+      break;
+    case "l":
+      LaserBeam1.object3d.position.z += .1;
+      break;
+    case "w":
+      laserRotation.phi -= .1;
+      break;
+    case "s":
+      laserRotation.phi += .1;
+      break;
+    case "a":
+      laserRotation.theta -= .1;
+      break;
+    case "d":
+      laserRotation.theta += .1;
       break;
   }
 };
@@ -130,9 +144,10 @@ function render() {
   const geometry = new ParametricGeometry(membrane, 32, 32);
   mesh.geometry = geometry;
 
-
+  const laserLookAt = new THREE.Vector3();
+  laserLookAt.setFromSpherical(laserRotation)
   LaserBeam1.intersect(
-    new THREE.Vector3(-1, -.5, 0),
+    laserLookAt,
     objectArray
   );
   Mash.position.set(0, 0.1*Math.cos(elapsed), 0)
