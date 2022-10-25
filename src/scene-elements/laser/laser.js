@@ -39,7 +39,7 @@ export default function LaserBeam(config) {
   }
 
 
-  this.intersect = function(direction, objectArray = []) {
+  this.intersect = function(direction, objectArray = [], trail) {
 
     raycaster.set(
       this.object3d.position.clone(),
@@ -51,7 +51,7 @@ export default function LaserBeam(config) {
 
     //have collision
     if (intersectArray.length > 0) {
-      this.object3d.scale.z = intersectArray[0].distance;
+            this.object3d.scale.z = intersectArray[0].distance;
       this.object3d.lookAt(intersectArray[0].point.clone());
       this.pointLight.visible = true;
 
@@ -81,7 +81,9 @@ export default function LaserBeam(config) {
         );
 
         //iteration reflect
-        this.reflectObject.intersect(reflectVector.clone(), objectArray);
+        this.reflectObject.intersect(reflectVector.clone(), objectArray, trail);
+      } else {
+        trail.addPoint(intersectArray[0].point);
       }
     }
     //non collision

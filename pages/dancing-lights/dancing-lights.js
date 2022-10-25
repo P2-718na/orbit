@@ -2,14 +2,16 @@ import * as THREE from "three";
 import LaserBeam from "../../src/scene-elements/laser/laser.js";
 import SquareMembrane from "../../src/scene-elements/elastic-membrane/square-membrane";
 import setupDefaultScene from "../../src/utils/setup-default-scene";
+import PointTrail from "../../src/scene-elements/point-trail/point-trail";
 
 import { ParametricGeometry } from "three/examples/jsm/geometries/ParametricGeometry.js";
+import {Vector3} from "three";
 
 const { scene, clock, renderer, camera, cameraControls } = setupDefaultScene(THREE);
 
 
 const membrane = new SquareMembrane(5, 5, 1, 1, .005);
-membrane.setNormalModes([{n1: 4, n2: 1}, {n1: 3, n2: 5}, {n1: 2, n2: 3, A:.01}]);
+
 
 
 var Ambient, sunLight;
@@ -53,8 +55,11 @@ Mash.position.set(
 objectArray.push(membrane.sceneElement());
 //scene.add(Mash);
 
+const trail = new PointTrail(require("../../config/point-trail-cyan.json"), 10000);
+scene.add(trail.sceneElement())
+
 const Screen = new THREE.BoxGeometry(.2, 20, 20);
-var screen = new THREE.Mesh(Screen, Material);
+const screen = new THREE.Mesh(Screen, Material);
 screen.position.set(
   -10,
   5,
@@ -104,16 +109,16 @@ document.onkeydown = (e) => {
       LaserBeam1.object3d.position.z += .1;
       break;
     case "w":
-      laserRotation.phi -= .1;
+      laserRotation.phi -= .05;
       break;
     case "s":
-      laserRotation.phi += .1;
+      laserRotation.phi += .05;
       break;
     case "a":
-      laserRotation.theta -= .1;
+      laserRotation.theta -= .05;
       break;
     case "d":
-      laserRotation.theta += .1;
+      laserRotation.theta += .05;
       break;
   }
 };
@@ -135,12 +140,30 @@ function render() {
   laserLookAt.setFromSpherical(laserRotation)
   LaserBeam1.intersect(
     laserLookAt,
-    objectArray
+    objectArray,
+    trail
   );
   Mash.position.set(0, 0.1*Math.cos(elapsed), 0)
   Mash.rotation.set( 0.1*Math.cos(elapsed), 0, 0.1*Math.sin(elapsed))
   renderer.render(scene, camera);
 }
 render();
+
+const updateNormalModes = () => {
+
+  const normalModes = document.getElementById("normalModes")
+    .value
+    .split("\n")
+    .map(e => e.split(" "))
+    .map(([n1, n2, A]) => {return {n1, n2, A}})
+    .filter(({n1, n2}) => n1 && n2)
+  console.log(normalModes)
+
+  membrane.setNormalModes(normalModes);
+
+  trail.clear();
+}
+
+document.getElementById("normalModes").onchange = updateNormalModes;
 
 
