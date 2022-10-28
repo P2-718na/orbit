@@ -10,7 +10,7 @@ import {Vector3} from "three";
 const { scene, clock, renderer, camera, cameraControls } = setupDefaultScene(THREE);
 
 
-const membrane = new SquareMembrane(5, 5, 1, 1, .005);
+const membrane = new SquareMembrane(5, 5, 100, 1, .005);
 
 
 
@@ -55,7 +55,7 @@ Mash.position.set(
 objectArray.push(membrane.sceneElement());
 //scene.add(Mash);
 
-const trail = new PointTrail(require("../../config/point-trail-cyan.json"), 10000);
+const trail = new PointTrail(require("../../config/point-trail-cyan.json"), 500);
 scene.add(trail.sceneElement())
 
 const Screen = new THREE.BoxGeometry(.2, 20, 20);
