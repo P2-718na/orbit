@@ -1,37 +1,209 @@
 import * as THREE from "three";
+import {PI} from "three/examples/jsm/nodes/ShaderNode";
+import ODESolver from "../../ode-solver/ode-solver";
+import {calcNURBSDerivatives} from "three/examples/jsm/curves/NURBSUtils";
+import {Vector3} from "three";
+
+const { sin, cos, PI:pi } = Math;
+const cos2 = x =>  cos(x) ** 2;
+const sin2 = x =>  sin(x) ** 2;
+
+const m = 1;
+const M = 5;
+const g = 9.8;
+const l = 5;
+
+const f = (t, { x, dotX, t1, dotT1, t2, dotT2 }) => {
+  /*
+    // Single pendulum equations
+    const denominator = M + m*sin2(t1);
+    const ddotX = (m*l*(dotT1**2)*sin(t1) + m*g*sin(t1)*cos(t1)) / denominator;
+    const ddotT1 = (-m*l*(dotT1**2)*sin(t1)*cos(t1) - (m + M)*g*sin(t1)) / denominator / l;
+  */
+
+  const denominator =  -2*M + m*(cos(2*t1) - cos(2*t2) - 2)
+
+  const ddotX =
+    (
+      m*(g*(sin(2*t1) + sin(2*t2)) + 2*l*sin(t1)*(dotT1**2) + 2*l*sin(t2)*(dotT2**2))
+    )
+      /
+    (
+      - denominator // this (-) sign does not appear on Mathematica, but it actually needs to be there... Idk
+    );
+
+  const ddotT1 =
+    (
+      g*(3*m*sin(t1) + 2*M*sin(t1) - m*sin(t1 - 2*t2)) + 2*l*m*cos(t1)*sin(t2)*(dotT2**2) + l*m*sin(2*t1)*(dotT1**2)
+    )
+      /
+    (
+      l * denominator
+    );
+
+  const ddotT2 =
+    (
+      g*(3*m*sin(t2) + 2*M*sin(t2) - m*sin(t2 - 2*t1)) + 2*l*m*cos(t2)*sin(t1)*(dotT1**2) + l*m*sin(2*t2)*(dotT2**2)
+    )
+    /
+    (
+      l * denominator
+    );
+
+  return {
+    x    : dotX,
+    dotX : ddotX,
+    t1   : dotT1,
+    dotT1: ddotT1,
+    t2   : dotT2,
+    dotT2: ddotT2
+  };
+}
+
+const defaultState = {
+  x    : .3,
+  dotX : 0,
+  t1   : 0,
+  dotT1: 0,
+  t2   : -.4,
+  dotT2: 0
+};
 
 export default class DPCart {
 // private ////////////////////////////////////////////////
-  #geometry;
-  #material;
   #mesh;
+  #solver
 
   // Generalised coordinates
-  #theta_1
-  #theta_2
-  #x
+  #state;
+  #l = 5;
+
+
+  // Elements
+  #support;
+  #ball1;
+  #ball2;
+  #string1;
+  #string2;
+;
+  #arc0;
+  #arc1;
+  #arc2;
+
+  #textT1
+
+  #normal0;
+  #normal1;
+  #normal2;
+
+  // Functions
+
+  static #setArcGeometry(geometry, radius, startAngle, angleLength, divisions = 50) {
+    const endAngle = angleLength + startAngle;
+    const curve = new THREE.EllipseCurve(0, 0, radius, radius, startAngle, endAngle, angleLength < 0);
+    const points = curve.getPoints(divisions);
+
+    geometry.setFromPoints(points);
+  }
 
 // public ////////////////////////////////////////////////
-  constructor(startCoordinates, { sigma, rho, beta }, vertexCount = 1E5, { pointTrailParameters }) {
+  constructor(state = defaultState) {
+    this.#state = state;
+    this.#solver = new ODESolver(f, [state, 0], .001, "rk4")
 
+    const supportGeometry = new THREE.BoxGeometry(10, .1, 2, 4);
+    const ballGeometry = new THREE.SphereGeometry(.2, 12, 12);
+
+    const points = [
+      new THREE.Vector3( 0, 0, 0 ),
+      new THREE.Vector3( 0, -4.8, 0 )
+    ];
+    const points2 = [
+      new THREE.Vector3( 0, -1, 0 ),
+      new THREE.Vector3( 0, 5, 0 )
+    ];
+    const stringGeometry = new THREE.BufferGeometry().setFromPoints(points);
+    const normalGeometry = new THREE.BufferGeometry().setFromPoints(points2);
+
+    const material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe:true });
+    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1 });
+    const normalMaterial = new THREE.LineDashedMaterial( {
+      color: 0x555555,
+      dashSize: .3,
+      gapSize: .15
+    } );
+
+    this.#support = new THREE.Mesh(supportGeometry, material);
+    this.#ball1 = new THREE.Mesh(ballGeometry, material);
+    this.#ball2 = new THREE.Mesh(ballGeometry, material);
+    this.#string1 = new THREE.Line(stringGeometry, lineMaterial);
+    this.#string2 = new THREE.Line(stringGeometry, lineMaterial);
+    this.#normal0 = new THREE.Line(normalGeometry, normalMaterial);
+    this.#normal1 = new THREE.Line(normalGeometry, normalMaterial);
+    this.#normal2 = new THREE.Line(normalGeometry, normalMaterial);
+
+
+    this.#mesh = new THREE.Group();
+    this.#mesh.add(this.#support, this.#ball1, this.#ball2, this.#string1, this.#string2, this.#normal0, this.#normal1, this.#normal2);
+
+
+    this.#support.position.set(0, 5, 0);
+    this.#ball1.position.set(-2.5, 0, 0);
+    this.#ball2.position.set(2.5, 0, 0);
+    this.#string1.position.set(-2.5, 5, 0);
+    this.#string2.position.set(2.5, 5, 0);
+    this.#normal0.position.set(0, 3, 0);
+    this.#normal1.position.set(-2.5, 0, 0);
+    this.#normal2.position.set(2.5, 0, 0);
+
+    this.#normal0.computeLineDistances();
+    this.#normal1.computeLineDistances();
+    this.#normal2.computeLineDistances();
+
+    // Create the final object to add to the scene
+    this.#arc0 = new THREE.Line(  new THREE.BufferGeometry(), lineMaterial );
+    this.#arc1 = new THREE.Line(  new THREE.BufferGeometry(), lineMaterial );
+    this.#arc2 = new THREE.Line(  new THREE.BufferGeometry(), lineMaterial );
+    this.#mesh.add(this.#arc0, this.#arc1, this.#arc2);
+
+    this.#arc0.position.set(0, 6, .5);
+  }
 
   sceneElement() {
     return this.#mesh;
   }
 
-  loop(dt) {
-    // Shift all forward by one position and push new position at the end
-    while (this.#vertices.length > this.#vertexCount) {
-      this.#vertices.shift(); // cleanme pls
-      this.#vertices.shift();
-      this.#vertices.shift();
-    }
+  loop(dt, t) {
+    this.#state = this.#solver.stepUntilTime(t);
 
-    // todo dt needs to be smaller. Run nextPosition a lot then push all the pixels
-    //  this dt needs to be variable depending on the distance of the last two points... Need more complex logic here
-    for (let i = 0; i !== 50; ++i) {
-      this.#vertices.push(...this.#nextPosition(dt / 10))
-      this.#updatePosition() // fixme questo è un po' sus, se lo tolgo dal for non si comporta come mi aspetto.
-    }
+    const { x, t1, t2 } = this.#state
+
+    this.#arc0.geometry.setFromPoints([new Vector3(0, 0, 0), new Vector3(x, 0, 0)]);
+    DPCart.#setArcGeometry(this.#arc1.geometry, 3, -pi/2, t1);
+    DPCart.#setArcGeometry(this.#arc2.geometry, 3, -pi/2, t2);
+    this.#arc1.position.set(-2.5 + x, 5, .5);
+    this.#arc2.position.set(2.5 + x, 5, .5);
+    //console.log(dotX, x);
+    const l = this.#l
+
+    this.#support.position.set(x, 5, 0);
+
+    this.#ball1.position.set(-2.5 + x + l*sin(t1), l*(1-cos(t1)), 0);
+    this.#ball2.position.set(2.5 + x + l*sin(t2), l*(1-cos(t2)), 0);
+    this.#ball1.setRotationFromEuler(new THREE.Euler(0, 0, t1));
+    this.#ball2.setRotationFromEuler(new THREE.Euler(0, 0, t2));
+
+    this.#string1.setRotationFromEuler(new THREE.Euler(0, 0, t1));
+    this.#string2.setRotationFromEuler(new THREE.Euler(0, 0, t2));
+
+    this.#string1.position.set(-2.5 + x, 5, 0);
+    this.#string2.position.set(2.5 + x, 5, 0);
+
+    this.#normal1.position.set(-2.5 + x, 0, 0);
+    this.#normal2.position.set(2.5 + x, 0, 0);
   }
 }
+calcNURBSDerivatives
+
+// Random resources I used:
+// https://12000.org/my_notes/cart_motion/report.htm#:~:text=To%20%EF%AC%81nd%20the%20equation%20of%20motion%20for%20we%20apply%20%CF%84,motion)%20where%20is%20the%20torque.&text=Therefore%20(6)%20%CE%B8%20%C2%A8%20%3D,required%20equation%20of%20motion%20for%20.
