@@ -75,7 +75,7 @@ export default class ODESolver {
   }
 
   // Bear in mind that evolutionLaw should be a funciton that returns a dState (state where components are their derivative)
-  // Also, IMPORTANT: f SHOULD NOT EDIT THE ORIGINAL STATE OBJECT! 
+  // Also, IMPORTANT: f SHOULD NOT EDIT THE ORIGINAL STATE OBJECT!
   constructor(evolutionLaw, [initialState, initialTime], stepSize, integratorName = "euler") {
     this.#evolutionLaw = evolutionLaw;
     this.#state = initialState;
@@ -107,6 +107,10 @@ export default class ODESolver {
     }
 
     return result;
+  }
+
+  skipToTime(targetTime) {
+    this.#t = targetTime;
   }
 }
 

@@ -1,70 +1,32 @@
+const { sin, cos, pow } = Math;
 
-const f = (t, { x, dotX, t1, dotT1, t2, dotT2 }) => {
-  /*
-    // single pendulum equations
-    const denominator = M + m*sin2(t1);
-    const ddotX = (m*l*(dotT1**2)*sin(t1) + m*g*sin(t1)*cos(t1)) / denominator;
-    const ddotT1 = (-m*l*(dotT1**2)*sin(t1)*cos(t1) - (m + M)*g*sin(t1)) / denominator / l;
-  */
+/*
+* Allora, questa forza  èbuggata. Non so esattamente da dove venga il bug, fatto sta che
+* cancellando e riaggiungendo il carattere -l nella parte destra delle equazioni di Eulero su Mathematica ha fiqato
+* tutto il sistema. Still, è interessante notare come i pendoli in questa roba si sincronizzino _in fase_, che è sbagliato.
+* Il risultato corretto sarebbe sincronizzazione contro fase, per un sistema solo dissipativo.
+* Questa forza (con m = 2, eta = .3, M = 10, l = 5) modellizza in modo storto quello che succede quando ho un metronomo.
+*
+* */
+const fBugged = (t, { q, dot_q, theta1, dot_theta1, theta2, dot_theta2 }) => {
+  const denominator =  -2*M + m*(cos(2*theta1) - cos(2*theta2) - 2)
 
-  const denominator =  -2*M + m*(cos(2*t1) - cos(2*t2) - 2)
-
-  const ddotX =
-    (
-      m*(g*(sin(2*t1) + sin(2*t2)) + 2*l*sin(t1)*(dotT1**2) + 2*l*sin(t2)*(dotT2**2))
-    )
-    /
-    (
-      - denominator
-    );
-
-  const ddotT1 =
-    (
-      g*(3*m*sin(t1) + 2*M*sin(t1) - m*sin(t1 - 2*t2)) + 2*l*m*cos(t1)*sin(t2)*(dotT2**2) + l*m*sin(2*t1)*(dotT1**2)
-    )
-    /
-    (
-      l * denominator
-    );
-
-  const ddotT2 =
-    (
-      g*(3*m*sin(t2) + 2*M*sin(t2) - m*sin(t2 - 2*t1)) + 2*l*m*cos(t2)*sin(t1)*(dotT1**2) + l*m*sin(2*t2)*(dotT2**2)
-    )
-    /
-    (
-      l * denominator
-    );
-
-  return {
-    x    : dotX,
-    dotX : ddotX,
-    t1   : dotT1,
-    dotT1: ddotT1,
-    t2   : dotT2,
-    dotT2: ddotT2
-  };
-}
-
-const fattr = (t, { x, dotX, t1, dotT1, t2, dotT2 }) => {
-  const denominator =  -2*M + m*(cos(2*t1) - cos(2*t2) - 2)
-
-  const ddotX =-((g*m*cos(t1)*sin(t1)+g*m*cos(t2)*sin(t2)+l*η*cos(t1)*dotT1+l*m*sin(t1)*pow(dotT1,2)+l*η*cos(t2)*dotT2+l*m*sin(t2)*pow(dotT2,2)+l*η*pow(cos(t1),2)*dotX+l*η*pow(cos(t2),2)*dotX)/(-2*m-M+m*pow(cos(t1),2)+m*pow(cos(t2),2)));
+  const ddot_q =-((g*m*cos_theta1*sin_theta1+g*m*cos_theta2*sin_theta2+l*eta*cos_theta1*dot_theta1+l*m*sin_theta1*pow(dot_theta1,2)+l*eta*cos_theta2*dot_theta2+l*m*sin_theta2*pow(dot_theta2,2)+l*eta*pow(cos_theta1,2)*dot_q+l*eta*pow(cos_theta2,2)*dot_q)/(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)));
   /*
   (
-    m*(g*(sin(2*t1) + sin(2*t2)) + 2*l*sin(t1)*(dotT1**2) + 2*l*sin(t2)*(dotT2**2))
-    - l*eta*(2*cos(t1)*dotT1 + 2*cos(t2)*dotT2 + dotX*(2 + cos(2*t1) + cos(2*t2)))
+    m*(g*(sin(2*theta1) + sin(2*theta2)) + 2*l*sin_theta1*(dot_theta1**2) + 2*l*sin_theta2*(dot_theta2**2))
+    - l*eta*(2*cos_theta1*dot_theta1 + 2*cos_theta2*dot_theta2 + dot_q*(2 + cos(2*theta1) + cos(2*theta2)))
   )
   /
   (
     - denominator
   );*/
 
-  const ddotT1 = ((3*g*pow(m,2)*sin(t1))/2.+g*m*M*sin(t1)-(g*pow(m,2)*sin(t1-2*t2))/2.+l*η*(2*m+M-m*pow(cos(t2),2))*dotT1+l*pow(m,2)*cos(t1)*sin(t1)*pow(dotT1,2)+l*m*η*cos(t1)*cos(t2)*dotT2+l*pow(m,2)*cos(t1)*sin(t2)*pow(dotT2,2)+2*l*m*η*cos(t1)*dotX+l*M*η*cos(t1)*dotX)/(l*m*(-2*m-M+m*pow(cos(t1),2)+m*pow(cos(t2),2)))
+  const ddot_theta1 = ((3*g*pow(m,2)*sin_theta1)/2.+g*m*M*sin_theta1-(g*pow(m,2)*sin(theta1-2*theta2))/2.+l*eta*(2*m+M-m*pow(cos_theta2,2))*dot_theta1+l*pow(m,2)*cos_theta1*sin_theta1*pow(dot_theta1,2)+l*m*eta*cos_theta1*cos_theta2*dot_theta2+l*pow(m,2)*cos_theta1*sin_theta2*pow(dot_theta2,2)+2*l*m*eta*cos_theta1*dot_q+l*M*eta*cos_theta1*dot_q)/(l*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
   /*
   (
-    g*(3*m*sin(t1) + 2*M*sin(t1) - m*sin(t1 - 2*t2)) + 2*l*m*cos(t1)*sin(t2)*(dotT2**2) + l*m*sin(2*t1)*(dotT1**2)
-    + l*eta/m*((3*m + 2*M - m*cos(2*t2))*dotT1 + 2*cos(t1)*(m*cos(t2)*dotT2 + (2*m + M)*dotX))
+    g*(3*m*sin_theta1 + 2*M*sin_theta1 - m*sin(theta1 - 2*theta2)) + 2*l*m*cos_theta1*sin_theta2*(dot_theta2**2) + l*m*sin(2*theta1)*(dot_theta1**2)
+    + l*eta/m*((3*m + 2*M - m*cos(2*theta2))*dot_theta1 + 2*cos_theta1*(m*cos_theta2*dot_theta2 + (2*m + M)*dot_q))
   )
   /
   (
@@ -72,11 +34,11 @@ const fattr = (t, { x, dotX, t1, dotT1, t2, dotT2 }) => {
   );*/
 
 
-  const ddotT2 = (l*m*η*cos(t1)*cos(t2)*dotT1+l*pow(m,2)*cos(t2)*sin(t1)*pow(dotT1,2)+(g*m*(m*sin(2*t1-t2)+(3*m+2*M)*sin(t2))-l*η*(-3*m-2*M+m*cos(2*t1))*dotT2+l*pow(m,2)*sin(2*t2)*pow(dotT2,2)+2*l*(2*m+M)*η*cos(t2)*dotX)/2.)/(l*m*(-2*m-M+m*pow(cos(t1),2)+m*pow(cos(t2),2)))
+  const ddot_theta2 = (l*m*eta*cos_theta1*cos_theta2*dot_theta1+l*pow(m,2)*cos_theta2*sin_theta1*pow(dot_theta1,2)+(g*m*(m*sin(2*theta1-theta2)+(3*m+2*M)*sin_theta2)-l*eta*(-3*m-2*M+m*cos(2*theta1))*dot_theta2+l*pow(m,2)*sin(2*theta2)*pow(dot_theta2,2)+2*l*(2*m+M)*eta*cos_theta2*dot_q)/2.)/(l*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
   /*
   (
-    g*(3*m*sin(t2) + 2*M*sin(t2) - m*sin(t2 - 2*t1)) + 2*l*m*cos(t2)*sin(t1)*(dotT1**2) + l*m*sin(2*t2)*(dotT2**2)
-    + l*eta/m*((3*m + 2*M - m*cos(2*t1))*dotT2 + 2*cos(t2)*(m*cos(t1)*dotT1 + (2*m + M)*dotX))
+    g*(3*m*sin_theta2 + 2*M*sin_theta2 - m*sin(theta2 - 2*theta1)) + 2*l*m*cos_theta2*sin_theta1*(dot_theta1**2) + l*m*sin(2*theta2)*(dot_theta2**2)
+    + l*eta/m*((3*m + 2*M - m*cos(2*theta1))*dot_theta2 + 2*cos_theta2*(m*cos_theta1*dot_theta1 + (2*m + M)*dot_q))
   )
   /
   (
@@ -84,13 +46,85 @@ const fattr = (t, { x, dotX, t1, dotT1, t2, dotT2 }) => {
   );*/
 
   return {
-    x    : dotX,
-    dotX : ddotX,
-    t1   : dotT1,
-    dotT1: ddotT1,
-    t2   : dotT2,
-    dotT2: ddotT2
+    q    : dot_q,
+    dot_q : ddot_q,
+    theta1   : dot_theta1,
+    dot_theta1: ddot_theta1,
+    theta2   : dot_theta2,
+    dot_theta2: ddot_theta2
   };
 }
 
-module.exports = { f, fattr };
+module.exports = (({ equation, m, M, g, l, eta }) => {
+  const equations = {
+    fDampened: (t, { q, dot_q, theta1, dot_theta1, theta2, dot_theta2 }) => {
+      // Equations generated by wolfram alpha.
+      const cos_theta1 = cos(theta1);
+      const cos_theta2 = cos(theta2);
+      const sin_theta1 = sin(theta1);
+      const sin_theta2 = sin(theta2);
+      const lSquare = l ** 2;
+
+      // Could simplify a bit more, but it's ok for now.
+      const ddot_q = -((g*l*m*cos_theta1*sin_theta1+g*l*m*cos_theta2*sin_theta2+lSquare*eta*cos_theta1*dot_theta1+lSquare*m*sin_theta1*pow(dot_theta1,2)+lSquare*eta*cos_theta2*dot_theta2+lSquare*m*sin_theta2*pow(dot_theta2,2)-pow(cos_theta1,2)*dot_q-pow(cos_theta2,2)*dot_q)/ (l*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2))))
+      const ddot_theta1 = (3*g*l*pow(m,2)*sin_theta1+2*g*l*m*M*sin_theta1-g*l*pow(m,2)*sin(theta1-2*theta2)-lSquare*eta*(-3*m-2*M+m*cos(2*theta2))*dot_theta1+lSquare*pow(m,2)*sin(2*theta1)*pow(dot_theta1,2)+2*lSquare*m*eta*cos_theta1*cos_theta2*dot_theta2+2*lSquare*pow(m,2)*cos_theta1*sin_theta2*pow(dot_theta2,2)-4*m*cos_theta1*dot_q-2*M*cos_theta1*dot_q)/(lSquare*m*(-2*(m+M)+m*cos(2*theta1)+m*cos(2*theta2)))
+      const ddot_theta2 = (lSquare*m*eta*cos_theta1*cos_theta2*dot_theta1+lSquare*pow(m,2)*cos_theta2*sin_theta1*pow(dot_theta1,2)+(g*l*m*(m*sin(2*theta1-theta2)+(3*m+2*M)*sin_theta2)-lSquare*eta*(-3*m-2*M+m*cos(2*theta1))*dot_theta2+lSquare*pow(m,2)*sin(2*theta2)*pow(dot_theta2,2)-2*(2*m+M)*cos_theta2*dot_q)/2.)/(lSquare*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
+
+      return {
+        q         : dot_q,
+        dot_q     : ddot_q,
+        theta1    : dot_theta1,
+        dot_theta1: ddot_theta1,
+        theta2    : dot_theta2,
+        dot_theta2: ddot_theta2,
+      };
+    },
+
+    fConservative: (t, { q, dot_q, theta1, dot_theta1, theta2, dot_theta2 }) => {
+      // For future reference...
+      /*
+        // single pendulum equations
+        const denominator = M + m*sin2(theta1);
+        const ddot_q = (m*l*(dot_theta1**2)*sin_theta1 + m*g*sin_theta1*cos_theta1) / denominator;
+        const ddot_theta1 = (-m*l*(dot_theta1**2)*sin_theta1*cos_theta1 - (m + M)*g*sin_theta1) / denominator / l;
+      */
+
+      // Equations generated by hand...
+      const cos_theta1 = cos(theta1);
+      const cos_theta2 = cos(theta2);
+      const sin_theta1 = sin(theta1);
+      const sin_theta2 = sin(theta2);
+      const denominator =  -2*M + m*(cos(2*theta1) - cos(2*theta2) - 2)
+
+      const ddot_q =
+        (
+          m*(g*(sin(2*theta1) + sin(2*theta2)) + 2*l*sin_theta1*(dot_theta1**2) + 2*l*sin_theta2*(dot_theta2**2))
+        ) / (
+          - denominator
+        );
+      const ddot_theta1 =
+        (
+          g*(3*m*sin_theta1 + 2*M*sin_theta1 - m*sin(theta1 - 2*theta2)) + 2*l*m*cos_theta1*sin_theta2*(dot_theta2**2) + l*m*sin(2*theta1)*(dot_theta1**2)
+        ) / (
+          l * denominator
+        );
+      const ddot_theta2 =
+        (
+          g*(3*m*sin_theta2 + 2*M*sin_theta2 - m*sin(theta2 - 2*theta1)) + 2*l*m*cos_theta2*sin_theta1*(dot_theta1**2) + l*m*sin(2*theta2)*(dot_theta2**2)
+        ) / (
+          l * denominator
+        );
+
+      return {
+        q         : dot_q,
+        dot_q     : ddot_q,
+        theta1    : dot_theta1,
+        dot_theta1: ddot_theta1,
+        theta2    : dot_theta2,
+        dot_theta2: ddot_theta2,
+      };
+    }
+  }
+
+  return equations[equation]
+})
