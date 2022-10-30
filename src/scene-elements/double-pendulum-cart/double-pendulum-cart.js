@@ -4,68 +4,24 @@ import ODESolver from "../../ode-solver/ode-solver";
 import {calcNURBSDerivatives} from "three/examples/jsm/curves/NURBSUtils";
 import {Vector3} from "three";
 
-const { sin, cos, PI:pi } = Math;
+const { f, fattr, fattr2 } = require("./forces.js");
+
+const { sin, cos, PI:pi, pow } = Math;
 const cos2 = x =>  cos(x) ** 2;
 const sin2 = x =>  sin(x) ** 2;
 
-const m = 1;
-const M = 5;
+const m = 2;
+const M = 10;
 const g = 9.8;
 const l = 5;
-
-const f = (t, { x, dotX, t1, dotT1, t2, dotT2 }) => {
-  /*
-    // Single pendulum equations
-    const denominator = M + m*sin2(t1);
-    const ddotX = (m*l*(dotT1**2)*sin(t1) + m*g*sin(t1)*cos(t1)) / denominator;
-    const ddotT1 = (-m*l*(dotT1**2)*sin(t1)*cos(t1) - (m + M)*g*sin(t1)) / denominator / l;
-  */
-
-  const denominator =  -2*M + m*(cos(2*t1) - cos(2*t2) - 2)
-
-  const ddotX =
-    (
-      m*(g*(sin(2*t1) + sin(2*t2)) + 2*l*sin(t1)*(dotT1**2) + 2*l*sin(t2)*(dotT2**2))
-    )
-      /
-    (
-      - denominator // this (-) sign does not appear on Mathematica, but it actually needs to be there... Idk
-    );
-
-  const ddotT1 =
-    (
-      g*(3*m*sin(t1) + 2*M*sin(t1) - m*sin(t1 - 2*t2)) + 2*l*m*cos(t1)*sin(t2)*(dotT2**2) + l*m*sin(2*t1)*(dotT1**2)
-    )
-      /
-    (
-      l * denominator
-    );
-
-  const ddotT2 =
-    (
-      g*(3*m*sin(t2) + 2*M*sin(t2) - m*sin(t2 - 2*t1)) + 2*l*m*cos(t2)*sin(t1)*(dotT1**2) + l*m*sin(2*t2)*(dotT2**2)
-    )
-    /
-    (
-      l * denominator
-    );
-
-  return {
-    x    : dotX,
-    dotX : ddotX,
-    t1   : dotT1,
-    dotT1: ddotT1,
-    t2   : dotT2,
-    dotT2: ddotT2
-  };
-}
+const η = .3;
 
 const defaultState = {
   x    : .3,
   dotX : 0,
   t1   : 0,
   dotT1: 0,
-  t2   : -.4,
+  t2   : -.3,
   dotT2: 0
 };
 
@@ -109,7 +65,7 @@ export default class DPCart {
 // public ////////////////////////////////////////////////
   constructor(state = defaultState) {
     this.#state = state;
-    this.#solver = new ODESolver(f, [state, 0], .001, "rk4")
+    this.#solver = new ODESolver(fattr, [state, 0], .0001, "rk4")
 
     const supportGeometry = new THREE.BoxGeometry(10, .1, 2, 4);
     const ballGeometry = new THREE.SphereGeometry(.2, 12, 12);
