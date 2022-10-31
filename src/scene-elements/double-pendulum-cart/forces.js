@@ -1,60 +1,5 @@
 const { sin, cos, pow } = Math;
 
-/*
-* Allora, questa forza  èbuggata. Non so esattamente da dove venga il bug, fatto sta che
-* cancellando e riaggiungendo il carattere -l nella parte destra delle equazioni di Eulero su Mathematica ha fiqato
-* tutto il sistema. Still, è interessante notare come i pendoli in questa roba si sincronizzino _in fase_, che è sbagliato.
-* Il risultato corretto sarebbe sincronizzazione contro fase, per un sistema solo dissipativo.
-* Questa forza (con m = 2, eta = .3, M = 10, l = 5) modellizza in modo storto quello che succede quando ho un metronomo.
-*
-* */
-const fBugged = (t, { q, dot_q, theta1, dot_theta1, theta2, dot_theta2 }) => {
-  const denominator =  -2*M + m*(cos(2*theta1) - cos(2*theta2) - 2)
-
-  const ddot_q =-((g*m*cos_theta1*sin_theta1+g*m*cos_theta2*sin_theta2+l*eta*cos_theta1*dot_theta1+l*m*sin_theta1*pow(dot_theta1,2)+l*eta*cos_theta2*dot_theta2+l*m*sin_theta2*pow(dot_theta2,2)+l*eta*pow(cos_theta1,2)*dot_q+l*eta*pow(cos_theta2,2)*dot_q)/(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)));
-  /*
-  (
-    m*(g*(sin(2*theta1) + sin(2*theta2)) + 2*l*sin_theta1*(dot_theta1**2) + 2*l*sin_theta2*(dot_theta2**2))
-    - l*eta*(2*cos_theta1*dot_theta1 + 2*cos_theta2*dot_theta2 + dot_q*(2 + cos(2*theta1) + cos(2*theta2)))
-  )
-  /
-  (
-    - denominator
-  );*/
-
-  const ddot_theta1 = ((3*g*pow(m,2)*sin_theta1)/2.+g*m*M*sin_theta1-(g*pow(m,2)*sin(theta1-2*theta2))/2.+l*eta*(2*m+M-m*pow(cos_theta2,2))*dot_theta1+l*pow(m,2)*cos_theta1*sin_theta1*pow(dot_theta1,2)+l*m*eta*cos_theta1*cos_theta2*dot_theta2+l*pow(m,2)*cos_theta1*sin_theta2*pow(dot_theta2,2)+2*l*m*eta*cos_theta1*dot_q+l*M*eta*cos_theta1*dot_q)/(l*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
-  /*
-  (
-    g*(3*m*sin_theta1 + 2*M*sin_theta1 - m*sin(theta1 - 2*theta2)) + 2*l*m*cos_theta1*sin_theta2*(dot_theta2**2) + l*m*sin(2*theta1)*(dot_theta1**2)
-    + l*eta/m*((3*m + 2*M - m*cos(2*theta2))*dot_theta1 + 2*cos_theta1*(m*cos_theta2*dot_theta2 + (2*m + M)*dot_q))
-  )
-  /
-  (
-    l * denominator
-  );*/
-
-
-  const ddot_theta2 = (l*m*eta*cos_theta1*cos_theta2*dot_theta1+l*pow(m,2)*cos_theta2*sin_theta1*pow(dot_theta1,2)+(g*m*(m*sin(2*theta1-theta2)+(3*m+2*M)*sin_theta2)-l*eta*(-3*m-2*M+m*cos(2*theta1))*dot_theta2+l*pow(m,2)*sin(2*theta2)*pow(dot_theta2,2)+2*l*(2*m+M)*eta*cos_theta2*dot_q)/2.)/(l*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
-  /*
-  (
-    g*(3*m*sin_theta2 + 2*M*sin_theta2 - m*sin(theta2 - 2*theta1)) + 2*l*m*cos_theta2*sin_theta1*(dot_theta1**2) + l*m*sin(2*theta2)*(dot_theta2**2)
-    + l*eta/m*((3*m + 2*M - m*cos(2*theta1))*dot_theta2 + 2*cos_theta2*(m*cos_theta1*dot_theta1 + (2*m + M)*dot_q))
-  )
-  /
-  (
-    l * denominator
-  );*/
-
-  return {
-    q    : dot_q,
-    dot_q : ddot_q,
-    theta1   : dot_theta1,
-    dot_theta1: ddot_theta1,
-    theta2   : dot_theta2,
-    dot_theta2: ddot_theta2
-  };
-}
-
 module.exports = (({ equation, m, M, g, l, eta }) => {
   const equations = {
     fDampened: (t, { q, dot_q, theta1, dot_theta1, theta2, dot_theta2 }) => {
@@ -122,6 +67,36 @@ module.exports = (({ equation, m, M, g, l, eta }) => {
         dot_theta1: ddot_theta1,
         theta2    : dot_theta2,
         dot_theta2: ddot_theta2,
+      };
+    },
+
+    fBugged: (t, { q, dot_q, theta1, dot_theta1, theta2, dot_theta2 }) => {
+
+      /*
+      * Allora, questa forza  èbuggata. Non so esattamente da dove venga il bug, fatto sta che
+      * cancellando e riaggiungendo il carattere -l nella parte destra delle equazioni di Eulero su Mathematica ha fiqato
+      * tutto il sistema. Still, è interessante notare come i pendoli in questa roba si sincronizzino _in fase_, che è sbagliato.
+      * Il risultato corretto sarebbe sincronizzazione contro fase, per un sistema solo dissipativo.
+      * Questa forza (con m = 2, eta = .3, M = 10, l = 5) modellizza in modo storto quello che succede quando ho un metronomo.
+      *
+      * */
+
+      const cos_theta1 = cos(theta1);
+      const cos_theta2 = cos(theta2);
+      const sin_theta1 = sin(theta1);
+      const sin_theta2 = sin(theta2);
+
+      const ddot_q =-((g*m*cos_theta1*sin_theta1+g*m*cos_theta2*sin_theta2+l*eta*cos_theta1*dot_theta1+l*m*sin_theta1*pow(dot_theta1,2)+l*eta*cos_theta2*dot_theta2+l*m*sin_theta2*pow(dot_theta2,2)+l*eta*pow(cos_theta1,2)*dot_q+l*eta*pow(cos_theta2,2)*dot_q)/(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)));
+      const ddot_theta1 = ((3*g*pow(m,2)*sin_theta1)/2.+g*m*M*sin_theta1-(g*pow(m,2)*sin(theta1-2*theta2))/2.+l*eta*(2*m+M-m*pow(cos_theta2,2))*dot_theta1+l*pow(m,2)*cos_theta1*sin_theta1*pow(dot_theta1,2)+l*m*eta*cos_theta1*cos_theta2*dot_theta2+l*pow(m,2)*cos_theta1*sin_theta2*pow(dot_theta2,2)+2*l*m*eta*cos_theta1*dot_q+l*M*eta*cos_theta1*dot_q)/(l*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
+      const ddot_theta2 = (l*m*eta*cos_theta1*cos_theta2*dot_theta1+l*pow(m,2)*cos_theta2*sin_theta1*pow(dot_theta1,2)+(g*m*(m*sin(2*theta1-theta2)+(3*m+2*M)*sin_theta2)-l*eta*(-3*m-2*M+m*cos(2*theta1))*dot_theta2+l*pow(m,2)*sin(2*theta2)*pow(dot_theta2,2)+2*l*(2*m+M)*eta*cos_theta2*dot_q)/2.)/(l*m*(-2*m-M+m*pow(cos_theta1,2)+m*pow(cos_theta2,2)))
+
+      return {
+        q    : dot_q,
+        dot_q : ddot_q,
+        theta1   : dot_theta1,
+        dot_theta1: ddot_theta1,
+        theta2   : dot_theta2,
+        dot_theta2: ddot_theta2
       };
     }
   }
