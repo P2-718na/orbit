@@ -14,7 +14,7 @@ let cells = [];
 let histogram;
 
 const startButton = document.getElementById("start")
-const nBins = 20;
+const nBins = 30;
 /////////////////////////////////////////////////////////////////
 
 const pad = (n, len) => String(n).padStart(len, ' ');
@@ -90,7 +90,7 @@ const displayCells = async () => {
       highlights.push(id);
     }
   })
-    
+
   highlights.forEach(id => {
     const cellClassList = document.getElementById(`cell-${id}`).classList;
 
@@ -114,7 +114,7 @@ const displayHistogram = () => {
       .insert(data)
 
     // And apply it
-    histogram.view.change('Energies', changeset).run();    
+    histogram.view.change('Energies', changeset).run();
   }
 
 const updateDimensions = () => {
@@ -135,7 +135,7 @@ const initInputHandlers = () => {
   const sizeDOMElement = document.getElementById("size");
   sizeDOMElement.oninput = () => {
     const value = sizeDOMElement.value;
-    // This NEEDS to be called first, since it updates width and height as well.. 
+    // This NEEDS to be called first, since it updates width and height as well..
     updateFontSize(value);
 
     sizeDOMElement.previousElementSibling.value = height * width;
@@ -175,8 +175,10 @@ const initVega = async () => {
     data: {
       name: "Energies",
       values: [
-        {"Energy level": String(initialEnergy), "Number of cells": 0}
+        {"Energy level": String(initialEnergy), "Number of cells": 1E5}
+
       ]
+
     },
     width: "container",
     height: 400,
@@ -197,10 +199,12 @@ const initVega = async () => {
         titleColor: "#fff"
       }
     }
+
   };
 
   return embed("#vis", spec, { actions: false })
 }
+
 
 const init = async () => {
   updateFontSize(fontSize);
