@@ -3,7 +3,7 @@ import embed from "vega-embed"
 
 
 // TODO MAKE RESPONSIVE FOR MOBILES
-//  ALSO CLEAN UP HTML MA STICAZZI PER ORA
+//  ALSO CLEAN UP HTML MA PER ORA FA NIENTE
 
 /////////////////////////////////////////////////////////////////
 let fontSize = 15;
