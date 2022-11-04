@@ -21,7 +21,7 @@ const pad = (n, len) => String(n).padStart(len, ' ');
 
 const findCellsWidth = (fontSize, charsInOneCell) => {
   const ratio = 2;
-  const divWidth = window.innerWidth / 1.8
+  const divWidth = window.innerWidth / 2.2
 
   return Math.floor(divWidth / (fontSize * charsInOneCell) * ratio);
 }
