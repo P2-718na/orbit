@@ -95,7 +95,7 @@ const displayCells = async () => {
     const cellClassList = document.getElementById(`cell-${id}`).classList;
 
     cellClassList.remove("highlighted");
-    setTimeout(() => cellClassList.add("highlighted"), .001);
+    setTimeout(() => cellClassList.add("highlighted"), .01);
   });
 }
 
