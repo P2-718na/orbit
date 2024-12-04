@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Orbit - Boltzmann Distribution</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+  <style type="text/css">
+    .row {
+        margin: 0;
+    }
+
+    body {
+      background: black;
+      color: white;
+    }
+
+    #cells span {
+      white-space: pre;
+      font-family: monospace;
+      padding-top: .5%;
+      padding-bottom: .5%;
+    }
+
+    #cells {
+      margin: 5%;
+      padding: 0px;
+      text-align: center;
+      border: solid 2px;
+    }
+
+    .gui-element {
+      margin: 10%;
+      padding: 0px;
+      margin-right: 0%;
+    }
+
+    #vis {
+      width: 90%;
+      height: 80%;
+    }
+
+    .btn-dark {
+      border-radius: 0px;
+      background-color: black;
+      border-color: white;
+    }
+
+    .highlighted {
+      animation-name: highlight;
+      animation-duration: .1s;
+      animation-iteration-count: 1;
+    }
+
+    #start {
+      width:  100%;
+    }
+
+    @keyframes highlight {
+      0%   {background-color:rgb(100, 100, 100);}
+      25%  {background-color:rgb(100, 100, 100);}
+      100%  {background-color:transparent;}
+    }
+  </style>
+</head>
+<body>
+<div class = "row">
+  <div class = "col-5">
+    <div class="row">
+      <div class="col-12">
+        <div id="vis" class="gui-element"></div>
+      </div>
+      <div class="col-12">
+        <div class="gui-element">
+          <form id="input">
+
+            <select class="form-select mb-2 control" id="function">
+              <option value="random">Random</option>
+              <option selected value="greedy">Greedy</option>
+              <option value="reluctant">Reluctant</option>
+            </select>
+
+            <label for="size" class="form-label">System size:</label> <output></output>
+            <input type="range" class="form-range mb-2 control" min="8" max="60" id="size" value=15 step=1>
+
+            <button type="button" class="btn btn-dark control" id="start" disabled>Start</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class = "col-7">
+    <div id="cells">
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
