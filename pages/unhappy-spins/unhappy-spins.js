@@ -178,7 +178,7 @@ const startSimulation = () => {
 
   // And launch
   const algorithm = algorithms[document.getElementById("function").value];
-  setInterval(algorithm, 0);
+  setInterval(algorithm, 1); //Fixme this does not guarantee race condition safety (I think)
 }
 
 const initVega = async () => {
