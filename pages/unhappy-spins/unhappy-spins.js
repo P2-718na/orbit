@@ -21,7 +21,7 @@ const cell_display_interval = 1000;
 const histogram_display_interval = 1000;
 /////////////////////////////////////////////////////////////////
 
-const pad = (n, len) => String(n).padStart(len, ' ');
+const pad = (n, len) => ` ${n > 0 ? "↑" : "↓"} `
 
 const findCellsWidth = (fontSize, charsInOneCell) => {
   const ratio = 2;
@@ -111,7 +111,7 @@ const displayCells = async () => {
     const oldValue = cell.textContent
 
     cell.textContent = pad(spin, 3);
-    cell.style.color = spin > 0 ? "cyan" : "red"
+    cell.style.color = spin > 0 ? "cyan" : "magenta"
   })
 }
 
@@ -155,6 +155,9 @@ const initInputHandlers = () => {
     const value = sizeDOMElement.value;
     // This NEEDS to be called first, since it updates width and height as well..
     updateFontSize(value);
+    computeHappinesses()
+    displayHistogram()
+    displayCells()
 
     sizeDOMElement.previousElementSibling.value = height * width;
   }
@@ -184,7 +187,7 @@ const initVega = async () => {
     data: {
       name: "Happiness",
       values: [
-        {"Happiness level": String("??"), "Number of cells": 1E5}
+        {"Happiness level": String("0"), "Number of cells": 1E5}
 
       ]
     },
